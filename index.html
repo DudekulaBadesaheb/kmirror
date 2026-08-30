@@ -12,7 +12,7 @@
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <title>K CAST - Universal Screen & Live Mirror</title>
+    <title>K CAST - 2-Way Voice, Screen & Camera Mirror</title>
 
     <!-- Bootstrap 5 CSS -->
     <link
@@ -31,7 +31,7 @@
     />
     <!-- QR Code Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- PeerJS Real-time Engine -->
+    <!-- PeerJS Real-Time Engine -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
     <!-- Dynamic WebAPK Manifest -->
@@ -43,7 +43,7 @@
         --k-cyan: #06b6d4;
         --k-accent: #f43f5e;
         --dark-bg: #05070d;
-        --card-bg: rgba(13, 18, 30, 0.9);
+        --card-bg: rgba(13, 18, 30, 0.92);
         --border-glow: rgba(79, 70, 229, 0.35);
         --phone-rim: #1e293b;
       }
@@ -185,7 +185,7 @@
       }
 
       /* ======================================================== */
-      /* DYNAMIC DEVICE VIEWPORTS                                 */
+      /* DYNAMIC DEVICE VIEWPORTS & 2-WAY PIP                     */
       /* ======================================================== */
       .mirror-stage {
         display: flex;
@@ -274,6 +274,21 @@
         background: #000;
       }
 
+      /* Floating 2-Way PIP Window */
+      .pip-self-video {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        width: 100px;
+        height: 140px;
+        border-radius: 14px;
+        border: 2px solid var(--k-cyan);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+        object-fit: cover;
+        z-index: 90;
+        background: #111;
+      }
+
       #qrcode img {
         margin: 0 auto;
         border-radius: 12px;
@@ -291,7 +306,7 @@
         <div class="loader-fill"></div>
       </div>
       <small class="text-secondary mt-2"
-        >Connecting High-Speed WebRTC Mesh...</small
+        >Activating Background Audio & 2-Way Mesh...</small
       >
     </div>
 
@@ -319,7 +334,7 @@
             class="btn btn-sm btn-success px-3 py-2 d-none"
             onclick="triggerWebAPKInstall()"
           >
-            <i class="fa-brands fa-android me-1"></i> Install K CAST APK
+            <i class="fa-brands fa-android me-1"></i> Install APK
           </button>
           <span
             id="connBadge"
@@ -362,10 +377,10 @@
             </div>
 
             <div class="mb-4">
-              <h2 class="fw-bold mb-2">Mirror Your Device</h2>
+              <h2 class="fw-bold mb-2">Mirror Your Device & Voice</h2>
               <p class="text-secondary">
-                Cast your entire mobile screen, desktop monitor, or stream live
-                from camera lenses.
+                Stream screen, camera, and continuous background 2-way live
+                audio.
               </p>
             </div>
 
@@ -402,7 +417,7 @@
                     <h6 class="fw-bold mb-0 text-light">Back Camera</h6>
                   </div>
                   <small class="text-secondary d-block"
-                    >Streams surroundings in HD from mobile back lens.</small
+                    >HD surroundings with continuous background voice.</small
                   >
                 </div>
               </div>
@@ -421,7 +436,7 @@
                     <h6 class="fw-bold mb-0 text-light">Front Camera</h6>
                   </div>
                   <small class="text-secondary d-block"
-                    >Selfie camera feed with low latency audio.</small
+                    >Selfie video stream with real-time 2-way talk.</small
                   >
                 </div>
               </div>
@@ -435,15 +450,16 @@
                 disabled
               >
                 <i class="fa-solid fa-circle-play me-2"></i> Start K CAST Live
+                (Video + Voice)
               </button>
             </div>
 
-            <!-- Active Broadcasting Panel -->
+            <!-- Active Broadcasting State -->
             <div id="activeCard" class="d-none text-start mt-4">
               <div class="alert alert-success d-flex align-items-center mb-3">
                 <i class="fa-solid fa-circle-check fs-4 me-3"></i>
                 <div>
-                  <strong>K CAST Stream Active!</strong> Open this link on the
+                  <strong>K CAST Stream & Voice Active!</strong> Open link on
                   receiver device.
                 </div>
               </div>
@@ -471,14 +487,22 @@
                 </p>
               </div>
 
-              <div class="d-flex justify-content-center gap-2 mt-4">
+              <!-- Control Bar -->
+              <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
                 <button
-                  class="btn btn-warning px-4 py-2"
+                  id="micToggleBtn"
+                  class="btn btn-secondary px-3 py-2"
+                  onclick="toggleMicrophone()"
+                >
+                  <i class="fa-solid fa-microphone me-1"></i> Mic: ON
+                </button>
+                <button
+                  class="btn btn-warning px-3 py-2"
                   onclick="toggleCameraLens()"
                 >
                   <i class="fa-solid fa-camera-rotate me-1"></i> Flip Lens
                 </button>
-                <button class="btn btn-danger px-4 py-2" onclick="stopKCast()">
+                <button class="btn btn-danger px-3 py-2" onclick="stopKCast()">
                   <i class="fa-solid fa-stop me-1"></i> Stop Sharing
                 </button>
               </div>
@@ -531,12 +555,19 @@
             </button>
           </div>
 
-          <div class="d-flex gap-2">
+          <div class="d-flex flex-wrap gap-2">
+            <button
+              id="recvMicBtn"
+              class="btn btn-sm btn-outline-success"
+              onclick="enableReceiver2Way()"
+            >
+              <i class="fa-solid fa-headset me-1"></i> Join Voice / Video
+            </button>
             <button
               class="btn btn-sm btn-outline-warning"
               onclick="requestRemoteFlipCamera()"
             >
-              <i class="fa-solid fa-camera-rotate me-1"></i> Flip Remote Lens
+              <i class="fa-solid fa-camera-rotate me-1"></i> Flip Remote
             </button>
             <button
               class="btn btn-sm btn-outline-light"
@@ -550,7 +581,7 @@
           </div>
         </div>
 
-        <!-- Smartphone / Device Frame Mockup -->
+        <!-- Smartphone Frame Mockup -->
         <div class="mirror-stage">
           <div id="mockupFrame" class="phone-mockup">
             <div id="phoneNotch" class="phone-notch">
@@ -570,8 +601,15 @@
                 id="receiverVideo"
                 autoplay
                 playsinline
-                muted
                 class="d-none"
+              ></video>
+              <!-- 2-Way Self View -->
+              <video
+                id="receiverSelfVideo"
+                autoplay
+                playsinline
+                muted
+                class="pip-self-video d-none"
               ></video>
             </div>
           </div>
@@ -650,14 +688,16 @@
       }
 
       // ========================================================
-      // 2. K CAST WEBRTC LIVE STREAMING ENGINE
+      // 2. K CAST WEBRTC 2-WAY LIVE STREAMING & VOICE ENGINE
       // ========================================================
       let peer = null;
       let localStream = null;
+      let receiverLocalStream = null;
       let activeMode = "screen";
       let facingDirection = "environment";
       let activeCall = null;
       let dataChannel = null;
+      let isMicEnabled = true;
 
       const rtcConfig = {
         config: {
@@ -723,7 +763,15 @@
             '<i class="fa-solid fa-circle-check me-1"></i> K CAST Ready';
 
           peer.on("call", (call) => {
-            if (localStream) call.answer(localStream);
+            if (localStream) {
+              call.answer(localStream);
+              // Handle incoming 2-way audio/video stream from receiver
+              call.on("stream", (remoteStream) => {
+                const audio = new Audio();
+                audio.srcObject = remoteStream;
+                audio.play().catch((e) => console.log(e));
+              });
+            }
           });
 
           peer.on("connection", (conn) => {
@@ -740,32 +788,34 @@
       async function startKCast() {
         try {
           if (activeMode === "screen") {
-            // SCREEN CAPTURE
             if (
               navigator.mediaDevices &&
               navigator.mediaDevices.getDisplayMedia
             ) {
               localStream = await navigator.mediaDevices.getDisplayMedia({
                 video: { cursor: "always", frameRate: { ideal: 30, max: 60 } },
-                audio: false,
+                audio: true,
               });
             } else {
-              // Automatic switch to camera lens when browser blocks OS display capture
               alert(
-                "Mobile browser restricted full-screen OS capture. Automatically switching to HD Camera mode!",
+                "Mobile browser restricted full-screen OS capture. Switching to HD Camera with 2-Way Voice!",
               );
               selectCastMode("environment");
               return startKCast();
             }
           } else {
-            // HD CAMERA STREAM
+            // HD CAMERA STREAM WITH REAL-TIME MICROPHONE VOICE
             localStream = await navigator.mediaDevices.getUserMedia({
               video: {
                 facingMode: facingDirection,
                 width: { ideal: 1920 },
                 height: { ideal: 1080 },
               },
-              audio: false,
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+              },
             });
           }
 
@@ -789,6 +839,19 @@
         }
       }
 
+      function toggleMicrophone() {
+        if (!localStream) return;
+        isMicEnabled = !isMicEnabled;
+        localStream
+          .getAudioTracks()
+          .forEach((track) => (track.enabled = isMicEnabled));
+        const btn = document.getElementById("micToggleBtn");
+        btn.className = isMicEnabled
+          ? "btn btn-secondary px-3 py-2"
+          : "btn btn-outline-danger px-3 py-2";
+        btn.innerHTML = `<i class="fa-solid fa-microphone${isMicEnabled ? "" : "-slash"} me-1"></i> Mic: ${isMicEnabled ? "ON" : "MUTED"}`;
+      }
+
       async function toggleCameraLens() {
         facingDirection =
           facingDirection === "environment" ? "user" : "environment";
@@ -801,7 +864,7 @@
               width: { ideal: 1920 },
               height: { ideal: 1080 },
             },
-            audio: false,
+            audio: isMicEnabled,
           });
 
           const newVideoTrack = newStream.getVideoTracks()[0];
@@ -874,9 +937,14 @@
           video.classList.remove("d-none");
           video.srcObject = remoteStream;
 
-          video.muted = true;
+          // Unmuted to hear the sender's voice in real time
+          video.muted = false;
           video.setAttribute("playsinline", "true");
-          video.play().catch((e) => console.log(e));
+          video.play().catch((e) => {
+            // Fallback if browser policy blocks unmuted autoplay
+            video.muted = true;
+            video.play();
+          });
 
           video.onloadedmetadata = () => {
             const w = video.videoWidth;
@@ -899,6 +967,38 @@
           waitMsg.innerHTML =
             '<i class="fa-solid fa-circle-xmark text-danger fs-1 mb-2"></i><p>K CAST Ended by Host</p>';
         });
+      }
+
+      // Enable 2-Way Video and Voice from Viewer back to Host
+      async function enableReceiver2Way() {
+        try {
+          receiverLocalStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: "user",
+              width: { ideal: 640 },
+              height: { ideal: 480 },
+            },
+            audio: { echoCancellation: true, noiseSuppression: true },
+          });
+
+          const selfVideo = document.getElementById("receiverSelfVideo");
+          selfVideo.classList.remove("d-none");
+          selfVideo.srcObject = receiverLocalStream;
+
+          // Add tracks to existing WebRTC call
+          if (activeCall && activeCall.peerConnection) {
+            receiverLocalStream.getTracks().forEach((track) => {
+              activeCall.peerConnection.addTrack(track, receiverLocalStream);
+            });
+          }
+
+          const btn = document.getElementById("recvMicBtn");
+          btn.className = "btn btn-sm btn-success";
+          btn.innerHTML =
+            '<i class="fa-solid fa-circle-check me-1"></i> 2-Way Voice Active';
+        } catch (e) {
+          alert("Camera or Microphone permission denied.");
+        }
       }
 
       function requestRemoteFlipCamera() {
