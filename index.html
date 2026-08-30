@@ -7,7 +7,7 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <meta name="theme-color" content="#4f46e5" />
-    <title>K CAST Ultra - 2-Way Video Call, Screen Share & Live Chat</title>
+    <title>K CAST Ultra - Multi-Member Call, Direct Chat & Image Share</title>
 
     <!-- Bootstrap 5 CSS -->
     <link
@@ -21,7 +21,7 @@
     />
     <!-- Google Fonts -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"
       rel="stylesheet"
     />
     <!-- QR Code Engine -->
@@ -55,7 +55,7 @@
         overflow-x: hidden;
       }
 
-      /* 3-Second Loading Animation */
+      /* 3-Second Splash Animation */
       #splash-screen {
         position: fixed;
         top: 0;
@@ -280,7 +280,6 @@
         cursor: pointer;
       }
 
-      /* Floating Dock Controls */
       .floating-control-dock {
         position: absolute;
         bottom: 15px;
@@ -290,23 +289,23 @@
         backdrop-filter: blur(14px);
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 40px;
-        padding: 8px 16px;
+        padding: 8px 14px;
         display: flex;
-        gap: 10px;
+        gap: 8px;
         z-index: 99;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
       }
 
       .control-circle-btn {
-        width: 44px;
-        height: 44px;
+        width: 42px;
+        height: 42px;
         border-radius: 50%;
         border: none;
         display: flex;
         align-items: center;
         justify-content: center;
         color: #fff;
-        font-size: 1.1rem;
+        font-size: 1rem;
         transition:
           transform 0.2s ease,
           background 0.2s ease;
@@ -316,14 +315,14 @@
         transform: scale(0.92);
       }
 
-      /* In-Call Chat Drawer */
+      /* Advanced In-Call Chat Drawer */
       .chat-drawer {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(5, 7, 13, 0.95);
+        background: rgba(5, 7, 13, 0.96);
         backdrop-filter: blur(16px);
         z-index: 105;
         display: flex;
@@ -337,6 +336,32 @@
         pointer-events: none;
       }
 
+      .chat-target-bar {
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 8px;
+      }
+
+      .target-pill {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: #1e293b;
+        color: #94a3b8;
+        cursor: pointer;
+        white-space: nowrap;
+        border: 1px solid transparent;
+      }
+
+      .target-pill.active {
+        background: var(--k-primary);
+        color: #fff;
+        border-color: var(--k-cyan);
+      }
+
       .chat-messages {
         flex: 1;
         overflow-y: auto;
@@ -347,22 +372,37 @@
       }
 
       .chat-bubble {
-        max-width: 80%;
-        padding: 8px 14px;
-        border-radius: 16px;
-        font-size: 0.88rem;
+        max-width: 82%;
+        padding: 8px 12px;
+        border-radius: 14px;
+        font-size: 0.85rem;
+        word-break: break-word;
       }
 
       .chat-bubble.sent {
         background: linear-gradient(135deg, var(--k-primary), #6366f1);
         align-self: flex-end;
-        border-bottom-right-radius: 4px;
+        border-bottom-right-radius: 2px;
       }
 
       .chat-bubble.received {
         background: #1e293b;
         align-self: flex-start;
-        border-bottom-left-radius: 4px;
+        border-bottom-left-radius: 2px;
+      }
+
+      .chat-image-preview {
+        max-width: 100%;
+        border-radius: 10px;
+        margin-top: 4px;
+        cursor: pointer;
+      }
+
+      .channel-tag {
+        font-size: 0.65rem;
+        font-weight: 700;
+        opacity: 0.75;
+        margin-bottom: 2px;
       }
 
       #qrcode img {
@@ -382,7 +422,7 @@
         <div class="loader-fill"></div>
       </div>
       <small class="text-secondary mt-2"
-        >Initializing 2-Way Video, Screen Share & Live Chat...</small
+        >Initializing Multi-Peer Mesh, Direct Chat & Media Engine...</small
       >
     </div>
 
@@ -409,8 +449,7 @@
             class="btn btn-sm btn-outline-info px-3 py-2 shadow-sm"
             onclick="downloadAppPackage()"
           >
-            <i class="fa-solid fa-file-zipper me-1"></i> Download APK Project
-            ZIP
+            <i class="fa-solid fa-file-zipper me-1"></i> Download Project ZIP
           </button>
           <span
             id="connBadge"
@@ -424,16 +463,34 @@
     </nav>
 
     <div class="container py-2">
-      <!-- INITIAL HOST SETUP DASHBOARD -->
+      <!-- INITIAL HOST & JOIN SETUP DASHBOARD -->
       <div id="senderSection" class="row justify-content-center">
         <div class="col-lg-8">
           <div class="glass-card p-4 p-md-5 text-center">
             <div class="mb-4">
-              <h2 class="fw-bold mb-2">2-Way Video Call & Screen Cast</h2>
+              <h2 class="fw-bold mb-2">2-Way Multi-Member Call & Cast</h2>
               <p class="text-secondary">
-                Start a full dual-video call with in-call screen sharing, camera
-                flipping, and integrated live chat.
+                Host a room with text join keys, in-call screen sharing,
+                individual/group chats, and peer image sharing.
               </p>
+            </div>
+
+            <!-- Manual Join with Text Key -->
+            <div class="card bg-dark border-secondary p-3 mb-4 text-start">
+              <label class="form-label small text-info fw-bold mb-1"
+                >Join an Existing Room with Text Key</label
+              >
+              <div class="input-group">
+                <input
+                  type="text"
+                  id="manualRoomKeyInput"
+                  class="form-control bg-black text-light border-secondary font-monospace"
+                  placeholder="Enter Host Room Key (e.g. kcast-7a9b)"
+                />
+                <button class="btn btn-success" onclick="joinRoomWithKey()">
+                  <i class="fa-solid fa-right-to-bracket me-1"></i> Join Call
+                </button>
+              </div>
             </div>
 
             <!-- SOURCE SELECTORS -->
@@ -498,8 +555,8 @@
                 onclick="startHostCall()"
                 disabled
               >
-                <i class="fa-solid fa-phone-volume me-2"></i> Start K CAST 2-Way
-                Call
+                <i class="fa-solid fa-phone-volume me-2"></i> Create New K CAST
+                Room
               </button>
             </div>
 
@@ -508,13 +565,28 @@
               <div class="alert alert-success d-flex align-items-center mb-3">
                 <i class="fa-solid fa-circle-check fs-4 me-3"></i>
                 <div>
-                  <strong>Call Ready!</strong> Share this link or QR code with
-                  the person you want to talk to.
+                  <strong>Room Created!</strong> Share your Room Key or Invite
+                  URL with members.
                 </div>
               </div>
 
               <label class="form-label text-secondary small fw-bold"
-                >Call Invite Link:</label
+                >Room Text Key:</label
+              >
+              <div class="input-group mb-2">
+                <input
+                  type="text"
+                  id="shareKeyDisplay"
+                  class="form-control bg-dark text-warning border-secondary font-monospace fw-bold"
+                  readonly
+                />
+                <button class="btn btn-outline-warning" onclick="copyTextKey()">
+                  <i class="fa-regular fa-copy me-1"></i> Copy Key
+                </button>
+              </div>
+
+              <label class="form-label text-secondary small fw-bold"
+                >Full Invite URL:</label
               >
               <div class="input-group mb-3">
                 <input
@@ -524,7 +596,7 @@
                   readonly
                 />
                 <button class="btn btn-outline-info" onclick="copyLink()">
-                  <i class="fa-regular fa-copy me-1"></i> Copy
+                  <i class="fa-regular fa-copy me-1"></i> Copy URL
                 </button>
               </div>
 
@@ -561,16 +633,16 @@
               CALL
             </span>
             <span id="callStatusBadge" class="badge bg-secondary font-monospace"
-              >Waiting for opposite user...</span
+              >Waiting for peer...</span
             >
           </div>
 
-          <!-- In-Call Share Link Modal Trigger -->
+          <!-- In-Call Share & Invite -->
           <button
             class="btn btn-sm btn-outline-info"
             onclick="openShareModal()"
           >
-            <i class="fa-solid fa-share-nodes me-1"></i> Share / QR
+            <i class="fa-solid fa-user-plus me-1"></i> Invite Member / Key
           </button>
 
           <!-- Frame Switchers -->
@@ -640,15 +712,16 @@
                 <i
                   class="fa-solid fa-user-clock fs-1 text-info mb-3 fa-fade"
                 ></i>
-                <h5 class="fw-bold">Waiting for Opposite Person</h5>
+                <h5 class="fw-bold">Waiting for Participants</h5>
                 <p class="small text-secondary mb-3">
-                  Share the invite link to start talking.
+                  Share your Room Key or Invite Link.
                 </p>
                 <button
                   class="btn btn-sm btn-outline-info"
                   onclick="openShareModal()"
                 >
-                  <i class="fa-solid fa-share-nodes me-1"></i> View Invite Link
+                  <i class="fa-solid fa-share-nodes me-1"></i> View Invite
+                  Details
                 </button>
               </div>
 
@@ -663,31 +736,69 @@
                 title="Click to swap feeds"
               ></video>
 
-              <!-- In-Call Real-Time Chat Drawer -->
+              <!-- In-Call Real-Time Chat Drawer with Individual / Group & Image Sharing -->
               <div id="chatDrawer" class="chat-drawer hidden">
                 <div
-                  class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-2 mb-2"
+                  class="d-flex justify-content-between align-items-center pb-2 mb-1"
                 >
                   <h6 class="fw-bold mb-0">
-                    <i class="fa-solid fa-comments text-info me-2"></i>In-Call
-                    Chat
+                    <i class="fa-solid fa-comments text-info me-2"></i>Live Chat
+                    & Files
                   </h6>
                   <button
                     class="btn btn-sm btn-close btn-close-white"
                     onclick="toggleChatDrawer()"
                   ></button>
                 </div>
+
+                <!-- Channel Switcher (Group vs Individual Direct Message) -->
+                <div class="chat-target-bar">
+                  <span
+                    id="targetAll"
+                    class="target-pill active"
+                    onclick="setChatTarget('all')"
+                  >
+                    <i class="fa-solid fa-users me-1"></i> Group (All)
+                  </span>
+                  <span
+                    id="targetPeer"
+                    class="target-pill d-none"
+                    onclick="setChatTarget('peer')"
+                  >
+                    <i class="fa-solid fa-user-lock me-1"></i> Direct Message
+                    (1-on-1)
+                  </span>
+                </div>
+
                 <div id="chatMessages" class="chat-messages">
-                  <div class="text-center small text-secondary my-2">
-                    Messages are peer-to-peer encrypted.
+                  <div class="text-center small text-secondary my-1">
+                    End-to-end encrypted direct peer transfer.
                   </div>
                 </div>
+
+                <!-- Hidden File Input for Image Sharing -->
+                <input
+                  type="file"
+                  id="imageFileInput"
+                  accept="image/*"
+                  class="d-none"
+                  onchange="handleImageSelected(event)"
+                />
+
+                <!-- Chat Input Deck -->
                 <div class="input-group mt-2">
+                  <button
+                    class="btn btn-sm btn-outline-secondary"
+                    onclick="document.getElementById('imageFileInput').click()"
+                    title="Send Image / Photo"
+                  >
+                    <i class="fa-solid fa-image text-warning"></i>
+                  </button>
                   <input
                     type="text"
                     id="chatInput"
                     class="form-control form-control-sm bg-dark text-light border-secondary"
-                    placeholder="Type a message..."
+                    placeholder="Type message..."
                     onkeypress="if (event.key === 'Enter') sendChatMessage();"
                   />
                   <button
@@ -770,8 +881,8 @@
         <div class="modal-content glass-card border-secondary text-light">
           <div class="modal-header border-secondary">
             <h5 class="modal-title fw-bold">
-              <i class="fa-solid fa-share-nodes text-info me-2"></i>Call Link &
-              QR Code
+              <i class="fa-solid fa-user-plus text-info me-2"></i>Invite Member
+              to Room
             </h5>
             <button
               type="button"
@@ -781,9 +892,24 @@
             ></button>
           </div>
           <div class="modal-body text-center">
-            <p class="small text-secondary">
-              Anyone with this link can join your live 2-way video call.
-            </p>
+            <label class="form-label small text-secondary fw-bold"
+              >Room Text Key (Share this short key):</label
+            >
+            <div class="input-group mb-3">
+              <input
+                type="text"
+                id="modalKeyDisplay"
+                class="form-control bg-black text-warning border-secondary font-monospace fw-bold text-center fs-5"
+                readonly
+              />
+              <button class="btn btn-warning" onclick="copyModalKey()">
+                <i class="fa-regular fa-copy me-1"></i> Copy Key
+              </button>
+            </div>
+
+            <label class="form-label small text-secondary fw-bold"
+              >Or Share Full Link:</label
+            >
             <div class="input-group mb-3">
               <input
                 type="text"
@@ -792,7 +918,7 @@
                 readonly
               />
               <button class="btn btn-info" onclick="copyModalLink()">
-                <i class="fa-regular fa-copy me-1"></i> Copy
+                <i class="fa-regular fa-copy me-1"></i> Copy URL
               </button>
             </div>
             <div id="modalQrCode" class="d-inline-block shadow my-2"></div>
@@ -806,7 +932,7 @@
 
     <script>
       // ========================================================
-      // 1. WEBRTC 2-WAY DUAL-STREAM & CHAT ENGINE
+      // 1. WEBRTC MULTI-PEER, 2-WAY DUAL STREAM & DATA ENGINE
       // ========================================================
       let peer = null;
       let localStream = null;
@@ -820,6 +946,7 @@
       let isSharingScreen = false;
       let isHost = true;
       let currentRoomId = "";
+      let chatScope = "all"; // "all" or "peer"
 
       const rtcConfig = {
         config: {
@@ -863,40 +990,40 @@
         const roomKey = params.get("room");
 
         if (roomKey) {
-          // RECEIVER GUEST MODE
-          isHost = false;
-          currentRoomId = roomKey;
-          document.getElementById("senderSection").classList.add("d-none");
-          document
-            .getElementById("callArenaSection")
-            .classList.remove("d-none");
-          initReceiverCall(roomKey);
+          joinRoomDirectly(roomKey);
         } else {
-          // SENDER HOST MODE
           initHostPeer();
         }
       }
 
       // Host Initialization
       function initHostPeer() {
-        peer = new Peer(rtcConfig);
+        // Generate clean readable text key prefix
+        const keySuffix = Math.random().toString(36).substring(2, 7);
+        const generatedKey = `kcast-${keySuffix}`;
+
+        peer = new Peer(generatedKey, rtcConfig);
 
         peer.on("open", (id) => {
           currentRoomId = id;
           document.getElementById("startCastBtn").disabled = false;
+          document.getElementById("shareKeyDisplay").value = id;
+          document.getElementById("modalKeyDisplay").value = id;
+
           const status = document.getElementById("connBadge");
           status.className =
             "badge bg-dark border border-secondary text-success px-3 py-2";
           status.innerHTML =
             '<i class="fa-solid fa-circle-check me-1"></i> Node Active';
 
-          // Setup Data Channel for Chat
+          // Listen for Data Channels (Chat & Image transfers)
           peer.on("connection", (conn) => {
             dataChannel = conn;
             setupDataChannelListeners();
+            document.getElementById("targetPeer").classList.remove("d-none");
           });
 
-          // Listen for Incoming 2-Way Call
+          // Listen for Incoming 2-Way Calls
           peer.on("call", async (incomingCall) => {
             activeCall = incomingCall;
             if (!localStream) {
@@ -913,7 +1040,7 @@
       async function startHostCall() {
         await acquireLocalMedia();
 
-        const shareUrl = `${window.location.origin}${window.location.pathname}?room=${peer.id}`;
+        const shareUrl = `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
         document.getElementById("shareUrl").value = shareUrl;
 
         document.getElementById("qrcode").innerHTML = "";
@@ -932,8 +1059,23 @@
         document.getElementById("callArenaSection").classList.remove("d-none");
       }
 
-      // Receiver Guest Initialization
-      async function initReceiverCall(hostRoomId) {
+      // Join with text key from input
+      function joinRoomWithKey() {
+        const key = document.getElementById("manualRoomKeyInput").value.trim();
+        if (!key) {
+          alert("Please enter a valid room key.");
+          return;
+        }
+        joinRoomDirectly(key);
+      }
+
+      // Direct Join Flow
+      async function joinRoomDirectly(targetRoomKey) {
+        isHost = false;
+        currentRoomId = targetRoomKey;
+        document.getElementById("senderSection").classList.add("d-none");
+        document.getElementById("callArenaSection").classList.remove("d-none");
+
         peer = new Peer(rtcConfig);
 
         peer.on("open", async () => {
@@ -941,23 +1083,21 @@
           status.className =
             "badge bg-dark border border-secondary text-success px-3 py-2";
           status.innerHTML =
-            '<i class="fa-solid fa-phone me-1"></i> Connecting to Host...';
+            '<i class="fa-solid fa-phone me-1"></i> Connecting...';
 
-          // Connect Data Channel for Chat
-          dataChannel = peer.connect(hostRoomId);
+          dataChannel = peer.connect(targetRoomKey);
           setupDataChannelListeners();
+          document.getElementById("targetPeer").classList.remove("d-none");
 
-          // 1. Acquire Local Camera & Mic
           await acquireLocalMedia();
 
-          // 2. Call Host with 2-Way Stream
-          activeCall = peer.call(hostRoomId, localStream);
+          activeCall = peer.call(targetRoomKey, localStream);
           setupCallStreamListeners(activeCall);
         });
 
         peer.on("error", () => {
           document.getElementById("callStatusBadge").innerText =
-            "Host offline or room expired";
+            "Host offline or invalid key";
         });
       }
 
@@ -1018,12 +1158,11 @@
         });
       }
 
-      // Dynamic In-Call Screen Share Switcher
+      // Screen Share Switcher
       async function toggleInCallScreenShare() {
         try {
           let newStream;
           if (!isSharingScreen) {
-            // Switch to Screen Share
             newStream = await navigator.mediaDevices.getDisplayMedia({
               video: { cursor: "always" },
               audio: true,
@@ -1032,11 +1171,9 @@
             document.getElementById("screenShareBtn").style.background =
               "#10b981";
 
-            newStream.getVideoTracks()[0].onended = () => {
-              toggleInCallScreenShare(); // Revert to camera if user stops share
-            };
+            newStream.getVideoTracks()[0].onended = () =>
+              toggleInCallScreenShare();
           } else {
-            // Revert to Camera
             newStream = await navigator.mediaDevices.getUserMedia({
               video: {
                 facingMode: currentFacing,
@@ -1052,7 +1189,6 @@
 
           const newVideoTrack = newStream.getVideoTracks()[0];
 
-          // Replace Track in Active WebRTC Call
           if (activeCall && activeCall.peerConnection) {
             const senders = activeCall.peerConnection.getSenders();
             const videoSender = senders.find(
@@ -1067,7 +1203,7 @@
           localStream = newStream;
           document.getElementById("selfPipVideo").srcObject = localStream;
         } catch (e) {
-          console.log("Screen share cancelled or unsupported:", e);
+          console.log("Screen share cancelled:", e);
         }
       }
 
@@ -1153,22 +1289,36 @@
       }
 
       // ========================================================
-      // 2. REAL-TIME IN-CALL CHAT SYSTEM
+      // 2. CHAT & IMAGE SHARING ENGINE
       // ========================================================
       function setupDataChannelListeners() {
         if (!dataChannel) return;
 
-        dataChannel.on("data", (data) => {
-          if (data.type === "chat") {
-            appendChatMessage(data.text, "received");
+        dataChannel.on("data", (payload) => {
+          if (payload.type === "chat") {
+            appendMessage({
+              text: payload.text,
+              direction: "received",
+              scope: payload.scope || "all",
+              image: payload.image || null,
+            });
 
-            // Show unread indicator if chat drawer is closed
             const drawer = document.getElementById("chatDrawer");
             if (drawer.classList.contains("hidden")) {
               document.getElementById("unreadBadge").classList.remove("d-none");
             }
           }
         });
+      }
+
+      function setChatTarget(scope) {
+        chatScope = scope;
+        document
+          .getElementById("targetAll")
+          .classList.toggle("active", scope === "all");
+        document
+          .getElementById("targetPeer")
+          .classList.toggle("active", scope === "peer");
       }
 
       function toggleChatDrawer() {
@@ -1185,26 +1335,97 @@
         const text = input.value.trim();
         if (!text || !dataChannel) return;
 
-        dataChannel.send({ type: "chat", text: text });
-        appendChatMessage(text, "sent");
+        const payload = { type: "chat", text: text, scope: chatScope };
+        dataChannel.send(payload);
+
+        appendMessage({
+          text: text,
+          direction: "sent",
+          scope: chatScope,
+          image: null,
+        });
+
         input.value = "";
       }
 
-      function appendChatMessage(text, direction) {
+      // P2P Image Compressor & Transmitter
+      function handleImageSelected(event) {
+        const file = event.target.files[0];
+        if (!file || !dataChannel) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            const canvas = document.createElement("canvas");
+            const maxDim = 800;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height && width > maxDim) {
+              height *= maxDim / width;
+              width = maxDim;
+            } else if (height > maxDim) {
+              width *= maxDim / height;
+              height = maxDim;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // Compress to lightweight WebP data URL
+            const compressedDataUrl = canvas.toDataURL("image/webp", 0.65);
+
+            const payload = {
+              type: "chat",
+              text: "Sent an image",
+              image: compressedDataUrl,
+              scope: chatScope,
+            };
+
+            dataChannel.send(payload);
+
+            appendMessage({
+              text: "Sent an image",
+              direction: "sent",
+              scope: chatScope,
+              image: compressedDataUrl,
+            });
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+        event.target.value = ""; // Reset
+      }
+
+      function appendMessage({ text, direction, scope, image }) {
         const box = document.getElementById("chatMessages");
         const div = document.createElement("div");
         div.className = `chat-bubble ${direction}`;
-        div.innerText = text;
+
+        const tagText = scope === "peer" ? "[1-on-1 DM]" : "[Group]";
+        let content = `<div class="channel-tag">${tagText}</div>`;
+
+        if (image) {
+          content += `<img src="${image}" class="chat-image-preview shadow" onclick="window.open('${image}')" />`;
+        } else {
+          content += `<div>${text}</div>`;
+        }
+
+        div.innerHTML = content;
         box.appendChild(div);
         box.scrollTop = box.scrollHeight;
       }
 
       // ========================================================
-      // 3. UNIVERSAL SHARE MODAL & CONTROLS
+      // 3. SHARE, INVITE & MODAL CONTROLS
       // ========================================================
       function openShareModal() {
         const url = `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
         document.getElementById("modalShareUrl").value = url;
+        document.getElementById("modalKeyDisplay").value = currentRoomId;
 
         document.getElementById("modalQrCode").innerHTML = "";
         new QRCode(document.getElementById("modalQrCode"), {
@@ -1219,11 +1440,32 @@
         modal.show();
       }
 
+      function copyTextKey() {
+        const input = document.getElementById("shareKeyDisplay");
+        input.select();
+        navigator.clipboard.writeText(input.value);
+        alert("Room Key copied!");
+      }
+
+      function copyModalKey() {
+        const input = document.getElementById("modalKeyDisplay");
+        input.select();
+        navigator.clipboard.writeText(input.value);
+        alert("Room Key copied!");
+      }
+
+      function copyLink() {
+        const input = document.getElementById("shareUrl");
+        input.select();
+        navigator.clipboard.writeText(input.value);
+        alert("Invite URL copied!");
+      }
+
       function copyModalLink() {
         const input = document.getElementById("modalShareUrl");
         input.select();
         navigator.clipboard.writeText(input.value);
-        alert("Call link copied to clipboard!");
+        alert("Invite URL copied!");
       }
 
       function setDeviceFrame(type) {
@@ -1267,13 +1509,6 @@
         }
       }
 
-      function copyLink() {
-        const input = document.getElementById("shareUrl");
-        input.select();
-        navigator.clipboard.writeText(input.value);
-        alert("Call link copied to clipboard!");
-      }
-
       // ========================================================
       // 4. 1-CLICK COMPLETE PROJECT / APK DOWNLOADER
       // ========================================================
@@ -1283,7 +1518,7 @@
         zip.file(
           "pubspec.yaml",
           `name: k_cast
-description: "K CAST Ultra - 2-Way Video Call, Screen Sharing & Live Chat"
+description: "K CAST Ultra - Multi-Member Video, Screen Share, Direct Chat & Images"
 version: 1.0.0+1
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -1299,14 +1534,14 @@ flutter:
 
         zip.file(
           "README.md",
-          `# K CAST Ultra Pro
+          `# K CAST Ultra Pro Suite
 1. Run 'flutter pub get'
 2. Run 'flutter build apk --release'
-Your standalone production APK will be built under build/app/outputs/flutter-apk/app-release.apk`,
+Your compiled APK will be output under build/app/outputs/flutter-apk/app-release.apk`,
         );
 
         zip.generateAsync({ type: "blob" }).then((blob) => {
-          saveAs(blob, "K_CAST_Ultra_Complete_Project.zip");
+          saveAs(blob, "K_CAST_Ultra_Full_Project.zip");
         });
       }
     </script>
