@@ -7,7 +7,7 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <meta name="theme-color" content="#4f46e5" />
-    <title>K CAST - 2-Way Live Video Call & Screen Mirror</title>
+    <title>K CAST Ultra - 2-Way Video Call, Screen Share & Live Chat</title>
 
     <!-- Bootstrap 5 CSS -->
     <link
@@ -38,7 +38,7 @@
         --k-cyan: #06b6d4;
         --k-accent: #f43f5e;
         --dark-bg: #05070d;
-        --card-bg: rgba(13, 18, 30, 0.92);
+        --card-bg: rgba(13, 18, 30, 0.94);
         --border-glow: rgba(79, 70, 229, 0.35);
         --phone-rim: #1e293b;
       }
@@ -55,7 +55,7 @@
         overflow-x: hidden;
       }
 
-      /* 3-Second Splash Animation */
+      /* 3-Second Loading Animation */
       #splash-screen {
         position: fixed;
         top: 0;
@@ -178,9 +178,7 @@
         color: #fff;
       }
 
-      /* ======================================================== */
-      /* VIDEO CALL ARENA (2-WAY DUAL STREAMS)                    */
-      /* ======================================================== */
+      /* Video Call Stage */
       .call-stage {
         display: flex;
         justify-content: center;
@@ -251,7 +249,6 @@
         border-width: 4px !important;
       }
 
-      /* Video Call Stage Inside Mockup */
       .call-grid {
         width: 100%;
         height: 100%;
@@ -261,7 +258,6 @@
         flex-direction: column;
       }
 
-      /* Main Display Feed */
       .main-video-feed {
         width: 100%;
         height: 100%;
@@ -269,7 +265,6 @@
         background: #000;
       }
 
-      /* Floating Video Call Window (Picture-in-Picture) */
       .pip-video-window {
         position: absolute;
         bottom: 85px;
@@ -282,23 +277,24 @@
         object-fit: cover;
         z-index: 95;
         background: #0e1424;
+        cursor: pointer;
       }
 
-      /* In-Call Floating Controls */
+      /* Floating Dock Controls */
       .floating-control-dock {
         position: absolute;
         bottom: 15px;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(13, 18, 30, 0.85);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(13, 18, 30, 0.88);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 40px;
         padding: 8px 16px;
         display: flex;
-        gap: 12px;
+        gap: 10px;
         z-index: 99;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
       }
 
       .control-circle-btn {
@@ -320,6 +316,55 @@
         transform: scale(0.92);
       }
 
+      /* In-Call Chat Drawer */
+      .chat-drawer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(5, 7, 13, 0.95);
+        backdrop-filter: blur(16px);
+        z-index: 105;
+        display: flex;
+        flex-direction: column;
+        padding: 16px;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .chat-drawer.hidden {
+        transform: translateY(100%);
+        pointer-events: none;
+      }
+
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding-right: 4px;
+      }
+
+      .chat-bubble {
+        max-width: 80%;
+        padding: 8px 14px;
+        border-radius: 16px;
+        font-size: 0.88rem;
+      }
+
+      .chat-bubble.sent {
+        background: linear-gradient(135deg, var(--k-primary), #6366f1);
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+      }
+
+      .chat-bubble.received {
+        background: #1e293b;
+        align-self: flex-start;
+        border-bottom-left-radius: 4px;
+      }
+
       #qrcode img {
         margin: 0 auto;
         border-radius: 12px;
@@ -332,12 +377,12 @@
     <!-- 3-Second Loading Animation -->
     <div id="splash-screen">
       <div class="k-logo-orb">K</div>
-      <h3 class="mt-4 fw-bold tracking-wide">K CAST PRO</h3>
+      <h3 class="mt-4 fw-bold tracking-wide">K CAST ULTRA</h3>
       <div class="loader-bar">
         <div class="loader-fill"></div>
       </div>
       <small class="text-secondary mt-2"
-        >Initializing 2-Way Video & Voice Call Mesh...</small
+        >Initializing 2-Way Video, Screen Share & Live Chat...</small
       >
     </div>
 
@@ -361,10 +406,11 @@
         </a>
         <div class="d-flex align-items-center gap-2">
           <button
-            class="btn btn-sm btn-outline-info px-3 py-2"
+            class="btn btn-sm btn-outline-info px-3 py-2 shadow-sm"
             onclick="downloadAppPackage()"
           >
-            <i class="fa-solid fa-file-zipper me-1"></i> Download Project ZIP
+            <i class="fa-solid fa-file-zipper me-1"></i> Download APK Project
+            ZIP
           </button>
           <span
             id="connBadge"
@@ -378,15 +424,15 @@
     </nav>
 
     <div class="container py-2">
-      <!-- SENDER / CALL HOST INITIAL DASHBOARD -->
+      <!-- INITIAL HOST SETUP DASHBOARD -->
       <div id="senderSection" class="row justify-content-center">
         <div class="col-lg-8">
           <div class="glass-card p-4 p-md-5 text-center">
             <div class="mb-4">
               <h2 class="fw-bold mb-2">2-Way Video Call & Screen Cast</h2>
               <p class="text-secondary">
-                Start a video call with screen sharing, front/back lenses, and
-                continuous 2-way live audio.
+                Start a full dual-video call with in-call screen sharing, camera
+                flipping, and integrated live chat.
               </p>
             </div>
 
@@ -423,7 +469,7 @@
                     <h6 class="fw-bold mb-0 text-light">Back Camera</h6>
                   </div>
                   <small class="text-secondary d-block"
-                    >HD surroundings with continuous audio.</small
+                    >HD surroundings with continuous voice.</small
                   >
                 </div>
               </div>
@@ -439,7 +485,7 @@
                     <h6 class="fw-bold mb-0 text-light">Full Screen</h6>
                   </div>
                   <small class="text-secondary d-block"
-                    >Mirrors phone screen with 2-way audio.</small
+                    >Share device display with live audio.</small
                   >
                 </div>
               </div>
@@ -453,7 +499,7 @@
                 disabled
               >
                 <i class="fa-solid fa-phone-volume me-2"></i> Start K CAST 2-Way
-                Video Call
+                Call
               </button>
             </div>
 
@@ -462,13 +508,13 @@
               <div class="alert alert-success d-flex align-items-center mb-3">
                 <i class="fa-solid fa-circle-check fs-4 me-3"></i>
                 <div>
-                  <strong>Video Call Room Ready!</strong> Share this link or QR
-                  code with the person you want to talk to.
+                  <strong>Call Ready!</strong> Share this link or QR code with
+                  the person you want to talk to.
                 </div>
               </div>
 
               <label class="form-label text-secondary small fw-bold"
-                >Invite Link for Opposite Person:</label
+                >Call Invite Link:</label
               >
               <div class="input-group mb-3">
                 <input
@@ -486,14 +532,14 @@
                 <div id="qrcode" class="d-inline-block shadow"></div>
                 <p class="text-secondary small mt-2">
                   <i class="fa-solid fa-qrcode me-1"></i> Scan with mobile
-                  camera to join call instantly
+                  camera to join call
                 </p>
               </div>
 
               <div class="text-center mt-3">
                 <button
                   class="btn btn-primary px-4 py-2"
-                  onclick="enterHostCallRoom()"
+                  onclick="enterCallArena()"
                 >
                   <i class="fa-solid fa-video me-1"></i> Enter Video Call Screen
                 </button>
@@ -519,6 +565,14 @@
             >
           </div>
 
+          <!-- In-Call Share Link Modal Trigger -->
+          <button
+            class="btn btn-sm btn-outline-info"
+            onclick="openShareModal()"
+          >
+            <i class="fa-solid fa-share-nodes me-1"></i> Share / QR
+          </button>
+
           <!-- Frame Switchers -->
           <div class="btn-group" role="group">
             <button
@@ -543,7 +597,7 @@
               class="btn btn-sm btn-outline-info"
               onclick="setDeviceFrame('tv')"
             >
-              <i class="fa-solid fa-tv"></i> Cinema TV
+              <i class="fa-solid fa-tv"></i> TV Mode
             </button>
           </div>
 
@@ -560,7 +614,7 @@
           </div>
         </div>
 
-        <!-- Smartphone / Device Frame Mockup -->
+        <!-- Smartphone Frame Mockup -->
         <div class="call-stage">
           <div id="mockupFrame" class="phone-mockup">
             <div id="phoneNotch" class="phone-notch">
@@ -570,7 +624,7 @@
 
             <!-- Video Call Grid -->
             <div class="call-grid">
-              <!-- Opposite User's Video Feed (Large) -->
+              <!-- Opposite User's Video Feed -->
               <video
                 id="remoteMainVideo"
                 autoplay
@@ -578,7 +632,7 @@
                 class="main-video-feed"
               ></video>
 
-              <!-- Waiting Screen if Opposite User Hasn't Joined Yet -->
+              <!-- Waiting Screen -->
               <div
                 id="waitingPlaceholder"
                 class="position-absolute w-100 h-100 d-flex flex-column justify-content-center align-items-center bg-black text-center p-4"
@@ -587,9 +641,15 @@
                   class="fa-solid fa-user-clock fs-1 text-info mb-3 fa-fade"
                 ></i>
                 <h5 class="fw-bold">Waiting for Opposite Person</h5>
-                <p class="small text-secondary mb-0">
+                <p class="small text-secondary mb-3">
                   Share the invite link to start talking.
                 </p>
+                <button
+                  class="btn btn-sm btn-outline-info"
+                  onclick="openShareModal()"
+                >
+                  <i class="fa-solid fa-share-nodes me-1"></i> View Invite Link
+                </button>
               </div>
 
               <!-- Self View Floating Window (Picture-in-Picture) -->
@@ -600,7 +660,44 @@
                 muted
                 class="pip-video-window"
                 onclick="swapVideoFeeds()"
+                title="Click to swap feeds"
               ></video>
+
+              <!-- In-Call Real-Time Chat Drawer -->
+              <div id="chatDrawer" class="chat-drawer hidden">
+                <div
+                  class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-2 mb-2"
+                >
+                  <h6 class="fw-bold mb-0">
+                    <i class="fa-solid fa-comments text-info me-2"></i>In-Call
+                    Chat
+                  </h6>
+                  <button
+                    class="btn btn-sm btn-close btn-close-white"
+                    onclick="toggleChatDrawer()"
+                  ></button>
+                </div>
+                <div id="chatMessages" class="chat-messages">
+                  <div class="text-center small text-secondary my-2">
+                    Messages are peer-to-peer encrypted.
+                  </div>
+                </div>
+                <div class="input-group mt-2">
+                  <input
+                    type="text"
+                    id="chatInput"
+                    class="form-control form-control-sm bg-dark text-light border-secondary"
+                    placeholder="Type a message..."
+                    onkeypress="if (event.key === 'Enter') sendChatMessage();"
+                  />
+                  <button
+                    class="btn btn-sm btn-primary"
+                    onclick="sendChatMessage()"
+                  >
+                    <i class="fa-solid fa-paper-plane"></i>
+                  </button>
+                </div>
+              </div>
 
               <!-- Floating In-Call Control Bar -->
               <div class="floating-control-dock">
@@ -631,6 +728,28 @@
                   <i class="fa-solid fa-camera-rotate"></i>
                 </button>
                 <button
+                  id="screenShareBtn"
+                  class="control-circle-btn"
+                  style="background: #6366f1"
+                  onclick="toggleInCallScreenShare()"
+                  title="Switch to Screen Share"
+                >
+                  <i class="fa-solid fa-display"></i>
+                </button>
+                <button
+                  id="chatBtn"
+                  class="control-circle-btn position-relative"
+                  style="background: #1e293b"
+                  onclick="toggleChatDrawer()"
+                  title="Open Chat"
+                >
+                  <i class="fa-solid fa-comment-dots"></i>
+                  <span
+                    id="unreadBadge"
+                    class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle d-none"
+                  ></span>
+                </button>
+                <button
                   class="control-circle-btn"
                   style="background: #ef4444"
                   onclick="endCall()"
@@ -645,19 +764,62 @@
       </div>
     </div>
 
+    <!-- Share & QR Modal Dialog -->
+    <div class="modal fade" id="shareModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card border-secondary text-light">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title fw-bold">
+              <i class="fa-solid fa-share-nodes text-info me-2"></i>Call Link &
+              QR Code
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body text-center">
+            <p class="small text-secondary">
+              Anyone with this link can join your live 2-way video call.
+            </p>
+            <div class="input-group mb-3">
+              <input
+                type="text"
+                id="modalShareUrl"
+                class="form-control bg-dark text-light border-secondary"
+                readonly
+              />
+              <button class="btn btn-info" onclick="copyModalLink()">
+                <i class="fa-regular fa-copy me-1"></i> Copy
+              </button>
+            </div>
+            <div id="modalQrCode" class="d-inline-block shadow my-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
       // ========================================================
-      // 1. WEBRTC 2-WAY DUAL-STREAM CALL ENGINE
+      // 1. WEBRTC 2-WAY DUAL-STREAM & CHAT ENGINE
       // ========================================================
       let peer = null;
       let localStream = null;
       let remoteStream = null;
       let activeCall = null;
-      let selectedMode = "user"; // "user", "environment", "screen"
+      let dataChannel = null;
+      let selectedMode = "user";
       let currentFacing = "user";
       let isMicOn = true;
       let isCamOn = true;
+      let isSharingScreen = false;
       let isHost = true;
+      let currentRoomId = "";
 
       const rtcConfig = {
         config: {
@@ -701,26 +863,26 @@
         const roomKey = params.get("room");
 
         if (roomKey) {
-          // RECEIVER MODE: Join directly into the video call
+          // RECEIVER GUEST MODE
           isHost = false;
+          currentRoomId = roomKey;
           document.getElementById("senderSection").classList.add("d-none");
           document
             .getElementById("callArenaSection")
             .classList.remove("d-none");
           initReceiverCall(roomKey);
         } else {
-          // HOST MODE
+          // SENDER HOST MODE
           initHostPeer();
         }
       }
 
-      // ========================================================
-      // HOST SIDE SETUP
-      // ========================================================
+      // Host Initialization
       function initHostPeer() {
         peer = new Peer(rtcConfig);
 
         peer.on("open", (id) => {
+          currentRoomId = id;
           document.getElementById("startCastBtn").disabled = false;
           const status = document.getElementById("connBadge");
           status.className =
@@ -728,16 +890,18 @@
           status.innerHTML =
             '<i class="fa-solid fa-circle-check me-1"></i> Node Active';
 
-          // Listen for incoming call from opposite person
+          // Setup Data Channel for Chat
+          peer.on("connection", (conn) => {
+            dataChannel = conn;
+            setupDataChannelListeners();
+          });
+
+          // Listen for Incoming 2-Way Call
           peer.on("call", async (incomingCall) => {
             activeCall = incomingCall;
-
-            // If host hasn't acquired local camera yet, get it now
             if (!localStream) {
               await acquireLocalMedia();
             }
-
-            // Answer with host's camera & voice
             activeCall.answer(localStream);
             setupCallStreamListeners(activeCall);
           });
@@ -763,14 +927,12 @@
         document.getElementById("activeInviteCard").classList.remove("d-none");
       }
 
-      function enterHostCallRoom() {
+      function enterCallArena() {
         document.getElementById("senderSection").classList.add("d-none");
         document.getElementById("callArenaSection").classList.remove("d-none");
       }
 
-      // ========================================================
-      // RECEIVER SIDE SETUP (OPPOSITE USER JOINS)
-      // ========================================================
+      // Receiver Guest Initialization
       async function initReceiverCall(hostRoomId) {
         peer = new Peer(rtcConfig);
 
@@ -781,10 +943,14 @@
           status.innerHTML =
             '<i class="fa-solid fa-phone me-1"></i> Connecting to Host...';
 
-          // 1. Acquire Receiver's Camera and Mic
+          // Connect Data Channel for Chat
+          dataChannel = peer.connect(hostRoomId);
+          setupDataChannelListeners();
+
+          // 1. Acquire Local Camera & Mic
           await acquireLocalMedia();
 
-          // 2. Call the Host with 2-Way Video & Voice Stream
+          // 2. Call Host with 2-Way Stream
           activeCall = peer.call(hostRoomId, localStream);
           setupCallStreamListeners(activeCall);
         });
@@ -795,9 +961,7 @@
         });
       }
 
-      // ========================================================
-      // SHARED 2-WAY STREAM PIPELINE
-      // ========================================================
+      // Media Acquisition
       async function acquireLocalMedia() {
         try {
           if (
@@ -808,6 +972,9 @@
               video: { cursor: "always" },
               audio: true,
             });
+            isSharingScreen = true;
+            document.getElementById("screenShareBtn").style.background =
+              "#10b981";
           } else {
             localStream = await navigator.mediaDevices.getUserMedia({
               video: {
@@ -821,13 +988,13 @@
                 autoGainControl: true,
               },
             });
+            isSharingScreen = false;
           }
 
-          // Render Self View in PiP
           const selfVid = document.getElementById("selfPipVideo");
           selfVid.srcObject = localStream;
         } catch (err) {
-          alert("Camera or Microphone permission was denied.");
+          alert("Camera, Screen or Microphone permission was denied.");
         }
       }
 
@@ -835,13 +1002,10 @@
         callInstance.on("stream", (incomingRemoteStream) => {
           remoteStream = incomingRemoteStream;
 
-          // Hide waiting card, render remote stream on Main Screen
           document.getElementById("waitingPlaceholder").classList.add("d-none");
           const mainVid = document.getElementById("remoteMainVideo");
           mainVid.srcObject = remoteStream;
-          mainVid
-            .play()
-            .catch((e) => console.log("Autoplay policy handled:", e));
+          mainVid.play().catch((e) => console.log("Autoplay handled:", e));
 
           const statusBadge = document.getElementById("callStatusBadge");
           statusBadge.className = "badge bg-success font-monospace";
@@ -854,7 +1018,60 @@
         });
       }
 
-      // In-Call Hardware Controls
+      // Dynamic In-Call Screen Share Switcher
+      async function toggleInCallScreenShare() {
+        try {
+          let newStream;
+          if (!isSharingScreen) {
+            // Switch to Screen Share
+            newStream = await navigator.mediaDevices.getDisplayMedia({
+              video: { cursor: "always" },
+              audio: true,
+            });
+            isSharingScreen = true;
+            document.getElementById("screenShareBtn").style.background =
+              "#10b981";
+
+            newStream.getVideoTracks()[0].onended = () => {
+              toggleInCallScreenShare(); // Revert to camera if user stops share
+            };
+          } else {
+            // Revert to Camera
+            newStream = await navigator.mediaDevices.getUserMedia({
+              video: {
+                facingMode: currentFacing,
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+              },
+              audio: isMicOn,
+            });
+            isSharingScreen = false;
+            document.getElementById("screenShareBtn").style.background =
+              "#6366f1";
+          }
+
+          const newVideoTrack = newStream.getVideoTracks()[0];
+
+          // Replace Track in Active WebRTC Call
+          if (activeCall && activeCall.peerConnection) {
+            const senders = activeCall.peerConnection.getSenders();
+            const videoSender = senders.find(
+              (s) => s.track && s.track.kind === "video",
+            );
+            if (videoSender) {
+              videoSender.replaceTrack(newVideoTrack);
+            }
+          }
+
+          if (localStream) localStream.getVideoTracks()[0].stop();
+          localStream = newStream;
+          document.getElementById("selfPipVideo").srcObject = localStream;
+        } catch (e) {
+          console.log("Screen share cancelled or unsupported:", e);
+        }
+      }
+
+      // Hardware Controls
       function toggleLocalMic() {
         if (!localStream) return;
         isMicOn = !isMicOn;
@@ -881,6 +1098,8 @@
 
       async function flipLocalLens() {
         currentFacing = currentFacing === "user" ? "environment" : "user";
+        isSharingScreen = false;
+        document.getElementById("screenShareBtn").style.background = "#6366f1";
 
         try {
           const newStream = await navigator.mediaDevices.getUserMedia({
@@ -894,7 +1113,6 @@
 
           const newVideoTrack = newStream.getVideoTracks()[0];
 
-          // Replace track in peer connection for remote user without dropping call
           if (activeCall && activeCall.peerConnection) {
             const senders = activeCall.peerConnection.getSenders();
             const videoSender = senders.find(
@@ -905,7 +1123,6 @@
             }
           }
 
-          // Update local PiP display
           if (localStream) localStream.getVideoTracks()[0].stop();
           localStream = newStream;
           document.getElementById("selfPipVideo").srcObject = localStream;
@@ -935,7 +1152,80 @@
           window.location.origin + window.location.pathname;
       }
 
-      // Frame Switcher System
+      // ========================================================
+      // 2. REAL-TIME IN-CALL CHAT SYSTEM
+      // ========================================================
+      function setupDataChannelListeners() {
+        if (!dataChannel) return;
+
+        dataChannel.on("data", (data) => {
+          if (data.type === "chat") {
+            appendChatMessage(data.text, "received");
+
+            // Show unread indicator if chat drawer is closed
+            const drawer = document.getElementById("chatDrawer");
+            if (drawer.classList.contains("hidden")) {
+              document.getElementById("unreadBadge").classList.remove("d-none");
+            }
+          }
+        });
+      }
+
+      function toggleChatDrawer() {
+        const drawer = document.getElementById("chatDrawer");
+        drawer.classList.toggle("hidden");
+        if (!drawer.classList.contains("hidden")) {
+          document.getElementById("unreadBadge").classList.add("d-none");
+          document.getElementById("chatInput").focus();
+        }
+      }
+
+      function sendChatMessage() {
+        const input = document.getElementById("chatInput");
+        const text = input.value.trim();
+        if (!text || !dataChannel) return;
+
+        dataChannel.send({ type: "chat", text: text });
+        appendChatMessage(text, "sent");
+        input.value = "";
+      }
+
+      function appendChatMessage(text, direction) {
+        const box = document.getElementById("chatMessages");
+        const div = document.createElement("div");
+        div.className = `chat-bubble ${direction}`;
+        div.innerText = text;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+      }
+
+      // ========================================================
+      // 3. UNIVERSAL SHARE MODAL & CONTROLS
+      // ========================================================
+      function openShareModal() {
+        const url = `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
+        document.getElementById("modalShareUrl").value = url;
+
+        document.getElementById("modalQrCode").innerHTML = "";
+        new QRCode(document.getElementById("modalQrCode"), {
+          text: url,
+          width: 160,
+          height: 160,
+        });
+
+        const modal = new bootstrap.Modal(
+          document.getElementById("shareModal"),
+        );
+        modal.show();
+      }
+
+      function copyModalLink() {
+        const input = document.getElementById("modalShareUrl");
+        input.select();
+        navigator.clipboard.writeText(input.value);
+        alert("Call link copied to clipboard!");
+      }
+
       function setDeviceFrame(type) {
         const frame = document.getElementById("mockupFrame");
         const notch = document.getElementById("phoneNotch");
@@ -981,11 +1271,11 @@
         const input = document.getElementById("shareUrl");
         input.select();
         navigator.clipboard.writeText(input.value);
-        alert("Invite link copied to clipboard!");
+        alert("Call link copied to clipboard!");
       }
 
       // ========================================================
-      // 2. PROJECT / APK DOWNLOAD GENERATOR
+      // 4. 1-CLICK COMPLETE PROJECT / APK DOWNLOADER
       // ========================================================
       function downloadAppPackage() {
         const zip = new JSZip();
@@ -993,7 +1283,7 @@
         zip.file(
           "pubspec.yaml",
           `name: k_cast
-description: "K CAST - 2-Way Video Call & Screen Mirroring App"
+description: "K CAST Ultra - 2-Way Video Call, Screen Sharing & Live Chat"
 version: 1.0.0+1
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -1009,12 +1299,14 @@ flutter:
 
         zip.file(
           "README.md",
-          `# K CAST 2-Way Video Call & Screen Mirroring
-Run 'flutter pub get' followed by 'flutter build apk --release' to generate your release APK.`,
+          `# K CAST Ultra Pro
+1. Run 'flutter pub get'
+2. Run 'flutter build apk --release'
+Your standalone production APK will be built under build/app/outputs/flutter-apk/app-release.apk`,
         );
 
         zip.generateAsync({ type: "blob" }).then((blob) => {
-          saveAs(blob, "K_CAST_2Way_VideoCall_Project.zip");
+          saveAs(blob, "K_CAST_Ultra_Complete_Project.zip");
         });
       }
     </script>
