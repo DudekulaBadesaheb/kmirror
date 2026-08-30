@@ -1,557 +1,865 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ScreenCast Pro - Mobile Mirroring</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>CastFlow Universal - Cross-Device Screen Mirroring</title>
 
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <!-- FontAwesome 6 Icons -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet" />
-  <!-- QR Code Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Bootstrap 5 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- FontAwesome 6 Icons -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- QR Code Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- PeerJS Real-Time P2P WebRTC Engine -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
-  <style>
-    :root {
-      --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
-      --dark-bg: #090d16;
-      --card-bg: rgba(17, 24, 39, 0.85);
-      --phone-border: #2e384d;
-    }
-
-    * {
-      box-sizing: border-box;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    body {
-      background-color: var(--dark-bg);
-      color: #f3f4f6;
-      min-height: 100vh;
-    }
-
-    /* 3-Second Splash Animation */
-    #splash-screen {
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      background: #05070e;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 99999;
-      transition: opacity 0.6s ease;
-    }
-
-    .loader-orb {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      background: var(--primary-gradient);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 2.2rem;
-      color: #fff;
-      box-shadow: 0 0 35px rgba(124, 58, 237, 0.7);
-      animation: pulseGlow 1.5s infinite alternate;
-    }
-
-    .loader-bar {
-      width: 200px;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      margin-top: 20px;
-      overflow: hidden;
-    }
-
-    .loader-progress {
-      width: 0%;
-      height: 100%;
-      background: var(--primary-gradient);
-      animation: fillBar 3s forwards cubic-bezier(0.1, 0.8, 0.3, 1);
-    }
-
-    @keyframes pulseGlow {
-      0% { transform: scale(0.95); }
-      100% { transform: scale(1.05); }
-    }
-
-    @keyframes fillBar {
-      0% { width: 0%; }
-      100% { width: 100%; }
-    }
-
-    /* Glass UI Cards */
-    .glass-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
-    }
-
-    .btn-gradient {
-      background: var(--primary-gradient);
-      color: #fff;
-      border: none;
-      font-weight: 600;
-      border-radius: 12px;
-      transition: all 0.3s ease;
-    }
-
-    .btn-gradient:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(219, 39, 119, 0.5);
-      color: #fff;
-    }
-
-    /* ========================================= */
-    /* REALISTIC MOBILE SMARTPHONE FRAME THEME   */
-    /* ========================================= */
-    .smartphone-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px 0;
-    }
-
-    .smartphone {
-      position: relative;
-      width: 340px;
-      height: 690px;
-      background: #000;
-      border-radius: 46px;
-      border: 12px solid var(--phone-border);
-      box-shadow: 0 0 50px rgba(79, 70, 229, 0.35), inset 0 0 10px rgba(255, 255, 255, 0.1);
-      overflow: hidden;
-    }
-
-    /* Notch / Dynamic Island */
-    .smartphone-notch {
-      position: absolute;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 110px;
-      height: 24px;
-      background: #000;
-      border-radius: 20px;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      padding: 0 10px;
-    }
-
-    .notch-camera {
-      width: 10px;
-      height: 10px;
-      background: #111827;
-      border-radius: 50%;
-      border: 1px solid #374151;
-    }
-
-    .notch-speaker {
-      width: 40px;
-      height: 4px;
-      background: #1f2937;
-      border-radius: 4px;
-    }
-
-    /* Screen Inside Mobile */
-    .smartphone-screen {
-      width: 100%;
-      height: 100%;
-      background: #0b0f19;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-
-    .smartphone-screen video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      background: #000;
-    }
-
-    #qrcode img {
-      margin: 0 auto;
-      border-radius: 12px;
-      padding: 6px;
-      background: #fff;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- 3-Second Loading Screen -->
-  <div id="splash-screen">
-    <div class="loader-orb">
-      <i class="fa-solid fa-mobile-screen"></i>
-    </div>
-    <h4 class="mt-4 fw-bold tracking-wide">CONNECTING MIRROR STREAM</h4>
-    <div class="loader-bar">
-      <div class="loader-progress"></div>
-    </div>
-    <small class="text-secondary mt-2">Setting up peer-to-peer pipelines...</small>
-  </div>
-
-  <!-- Header -->
-  <nav class="navbar navbar-dark bg-transparent py-3">
-    <div class="container">
-      <a class="navbar-brand fw-bold fs-4" href="#">
-        <i class="fa-solid fa-tower-broadcast text-primary me-2"></i>Screen<span class="text-info">Cast</span> Pro
-      </a>
-      <span class="badge bg-dark border border-secondary text-success px-3 py-2">
-        <i class="fa-solid fa-shield-halved me-1"></i> Live WebRTC Direct Link
-      </span>
-    </div>
-  </nav>
-
-  <div class="container py-3">
-    
-    <!-- SENDER / MOBILE CASTING SECTION -->
-    <div id="senderView" class="row justify-content-center">
-      <div class="col-lg-6">
-        <div class="glass-card p-4 p-md-5 text-center">
-          
-          <div class="mb-4">
-            <i class="fa-solid fa-mobile-screen-button fs-1 text-primary mb-3"></i>
-            <h2 class="fw-bold">Share Your Screen</h2>
-            <p class="text-secondary">Cast your entire mobile device or desktop screen live to another person instantly.</p>
-          </div>
-
-          <div id="initCard">
-            <button class="btn btn-gradient btn-lg px-4 py-3 shadow" onclick="startMirroring()">
-              <i class="fa-solid fa-play me-2"></i> Start Screen Sharing
-            </button>
-          </div>
-
-          <!-- Active Mirroring Dashboard -->
-          <div id="activeCard" class="d-none text-start mt-4">
-            <div class="alert alert-success d-flex align-items-center">
-              <i class="fa-solid fa-circle-check fs-4 me-3"></i>
-              <div><strong>Sharing Active!</strong> Send this link or show the QR code.</div>
-            </div>
-
-            <label class="form-label text-secondary small fw-bold">Viewer Link:</label>
-            <div class="input-group mb-3">
-              <input type="text" id="shareUrl" class="form-control bg-dark text-light border-secondary" readonly />
-              <button class="btn btn-outline-info" onclick="copyLink()">
-                <i class="fa-regular fa-copy me-1"></i> Copy
-              </button>
-            </div>
-
-            <div class="text-center my-3">
-              <div id="qrcode" class="d-inline-block shadow"></div>
-              <p class="text-secondary small mt-2"><i class="fa-solid fa-qrcode me-1"></i> Scan to open receiver on mobile</p>
-            </div>
-
-            <div class="text-center mt-4">
-              <button class="btn btn-danger px-4 py-2" onclick="stopMirroring()">
-                <i class="fa-solid fa-stop me-2"></i> Stop Sharing
-              </button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- RECEIVER / VIEWER WITH SMARTPHONE THEME -->
-    <div id="receiverView" class="d-none">
-      <div class="row justify-content-center">
-        <div class="col-lg-8 text-center">
-          
-          <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
-            <span class="badge bg-danger px-3 py-2">
-              <i class="fa-solid fa-satellite-dish fa-fade me-1"></i> LIVE MOBILE STREAM
-            </span>
-            <button class="btn btn-sm btn-outline-light" onclick="toggleFullScreen()">
-              <i class="fa-solid fa-expand me-1"></i> Full Screen
-            </button>
-          </div>
-
-          <!-- Smartphone Frame Mockup -->
-          <div class="smartphone-wrapper">
-            <div class="smartphone">
-              <!-- Top Notch -->
-              <div class="smartphone-notch">
-                <div class="notch-camera"></div>
-                <div class="notch-speaker"></div>
-              </div>
-
-              <!-- Mirrored Video Inside Screen -->
-              <div class="smartphone-screen">
-                <div id="waitingMsg" class="text-secondary p-3">
-                  <i class="fa-solid fa-circle-notch fa-spin fs-1 mb-3 text-info"></i>
-                  <p class="mb-0">Connecting to sender's screen...</p>
-                </div>
-                <video id="receiverVideo" autoplay playsinline class="d-none"></video>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <script>
-    // ==========================================
-    // BACKEND CONFIGURATION
-    // ==========================================
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjhIE2UEX4IVZuNS6tcIXtixRNKrfz4R8ZooBQqaMwxvw8ZMlBh032-h-fliX8yXWLww/exec";
-
-    let localStream = null;
-    let peerConn = null;
-    let currentRoom = null;
-    let pollTimer = null;
-    let seenCandidates = new Set();
-
-    // Standard public STUN configuration
-    const rtcConfig = {
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
-        { urls: "stun:stun2.l.google.com:19302" }
-      ]
-    };
-
-    // 1. Initial 3-Second Loading Screen
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        const splash = document.getElementById("splash-screen");
-        splash.style.opacity = "0";
-        setTimeout(() => {
-          splash.style.display = "none";
-          routeApp();
-        }, 600);
-      }, 3000);
-    });
-
-    // 2. Check if opened via share link
-    function routeApp() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const room = urlParams.get("room");
-
-      if (room) {
-        document.getElementById("senderView").classList.add("d-none");
-        document.getElementById("receiverView").classList.remove("d-none");
-        currentRoom = room;
-        initReceiver(room);
+    <style>
+      :root {
+        --primary-gradient: linear-gradient(
+          135deg,
+          #6366f1 0%,
+          #a855f7 50%,
+          #ec4899 100%
+        );
+        --dark-bg: #07090e;
+        --card-bg: rgba(18, 24, 38, 0.85);
+        --border-glow: rgba(99, 102, 241, 0.25);
       }
-    }
 
-    // ==========================================
-    // SENDER (HOST)
-    // ==========================================
-    async function startMirroring() {
-      try {
-        localStream = await navigator.mediaDevices.getDisplayMedia({
-          video: {
-            cursor: "always",
-            displaySurface: "monitor",
-            frameRate: { ideal: 30, max: 60 }
-          },
-          audio: false
-        });
-
-        // Request Room ID
-        const res = await fetch(`${SCRIPT_URL}?action=createRoom`);
-        const json = await res.json();
-        currentRoom = json.roomId;
-
-        const shareUrl = `${window.location.origin}${window.location.pathname}?room=${currentRoom}`;
-        document.getElementById("shareUrl").value = shareUrl;
-
-        // Render QR
-        document.getElementById("qrcode").innerHTML = "";
-        new QRCode(document.getElementById("qrcode"), {
-          text: shareUrl,
-          width: 140,
-          height: 140
-        });
-
-        document.getElementById("initCard").classList.add("d-none");
-        document.getElementById("activeCard").classList.remove("d-none");
-
-        localStream.getVideoTracks()[0].onended = () => stopMirroring();
-
-        // Setup WebRTC Host
-        setupHostConnection();
-
-      } catch (err) {
-        alert("Screen capture was cancelled or is not supported by your browser.");
-        console.error(err);
+      * {
+        box-sizing: border-box;
+        font-family: "Plus Jakarta Sans", sans-serif;
       }
-    }
 
-    async function setupHostConnection() {
-      peerConn = new RTCPeerConnection(rtcConfig);
+      body {
+        background-color: var(--dark-bg);
+        color: #f8fafc;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
 
-      localStream.getTracks().forEach(track => peerConn.addTrack(track, localStream));
+      /* 3-Second Interactive Splash Screen */
+      #splash-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #04060a;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 99999;
+        transition: opacity 0.6s ease;
+      }
 
-      peerConn.onicecandidate = (e) => {
-        if (e.candidate) {
-          sendSignalingData({
-            type: "candidate",
-            role: "host",
-            candidate: e.candidate
-          });
+      .loader-orb {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2.2rem;
+        color: #fff;
+        box-shadow: 0 0 40px rgba(168, 85, 247, 0.7);
+        animation: pulseGlow 1.5s infinite alternate;
+      }
+
+      .loader-bar {
+        width: 220px;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        margin-top: 24px;
+        overflow: hidden;
+      }
+
+      .loader-progress {
+        width: 0%;
+        height: 100%;
+        background: var(--primary-gradient);
+        animation: fillBar 3s forwards cubic-bezier(0.1, 0.8, 0.3, 1);
+      }
+
+      @keyframes pulseGlow {
+        0% {
+          transform: scale(0.95);
         }
-      };
+        100% {
+          transform: scale(1.05);
+        }
+      }
 
-      const offer = await peerConn.createOffer();
-      await peerConn.setLocalDescription(offer);
+      @keyframes fillBar {
+        0% {
+          width: 0%;
+        }
+        100% {
+          width: 100%;
+        }
+      }
 
-      // Push offer to Apps Script
-      await sendSignalingData({
-        type: "offer",
-        offer: offer
+      /* Modern Glassmorphic Container */
+      .glass-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 1px solid var(--border-glow);
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+      }
+
+      .btn-gradient {
+        background: var(--primary-gradient);
+        color: #fff;
+        border: none;
+        font-weight: 600;
+        border-radius: 14px;
+        transition: all 0.3s ease;
+      }
+
+      .btn-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5);
+        color: #fff;
+      }
+
+      /* Device Preview Frame System */
+      .device-stage {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 580px;
+        padding: 10px 0;
+      }
+
+      /* 1. Mobile Phone Mockup */
+      .frame-mobile {
+        position: relative;
+        width: 340px;
+        height: 680px;
+        background: #000;
+        border-radius: 46px;
+        border: 12px solid #1e293b;
+        box-shadow: 0 0 50px rgba(99, 102, 241, 0.35);
+        overflow: hidden;
+      }
+
+      .notch {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 22px;
+        background: #000;
+        border-radius: 20px;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        padding: 0 8px;
+      }
+
+      .notch-dot {
+        width: 8px;
+        height: 8px;
+        background: #334155;
+        border-radius: 50%;
+      }
+      .notch-bar {
+        width: 36px;
+        height: 4px;
+        background: #334155;
+        border-radius: 4px;
+      }
+
+      /* 2. Tablet Frame */
+      .frame-tablet {
+        position: relative;
+        width: 580px;
+        height: 440px;
+        background: #000;
+        border-radius: 28px;
+        border: 14px solid #1e293b;
+        box-shadow: 0 0 50px rgba(168, 85, 247, 0.35);
+        overflow: hidden;
+      }
+
+      /* 3. Desktop / Laptop Frame */
+      .frame-desktop {
+        position: relative;
+        width: 90%;
+        max-width: 820px;
+        height: 480px;
+        background: #000;
+        border-radius: 16px;
+        border: 10px solid #1e293b;
+        box-shadow: 0 0 50px rgba(236, 72, 153, 0.3);
+        overflow: hidden;
+      }
+
+      /* 4. Smart TV / Cinema Mode */
+      .frame-tv {
+        position: relative;
+        width: 95%;
+        max-width: 960px;
+        height: 520px;
+        background: #000;
+        border-radius: 8px;
+        border: 4px solid #334155;
+        box-shadow: 0 0 70px rgba(99, 102, 241, 0.5);
+        overflow: hidden;
+      }
+
+      .screen-container {
+        width: 100%;
+        height: 100%;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      .screen-container video {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      /* Chat Overlay */
+      .chat-box {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 320px;
+        height: 380px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chat-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        font-size: 0.85rem;
+      }
+
+      .chat-msg {
+        margin-bottom: 8px;
+        padding: 6px 12px;
+        border-radius: 12px;
+        max-width: 85%;
+      }
+
+      .chat-in {
+        background: #1e293b;
+        align-self: flex-start;
+      }
+      .chat-out {
+        background: #6366f1;
+        align-self: flex-end;
+      }
+
+      #qrcode img {
+        margin: 0 auto;
+        border-radius: 12px;
+        padding: 8px;
+        background: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 3-Second Loading Animation -->
+    <div id="splash-screen">
+      <div class="loader-orb">
+        <i class="fa-solid fa-satellite-dish"></i>
+      </div>
+      <h4 class="mt-4 fw-bold">INITIALIZING CASTFLOW PRO</h4>
+      <div class="loader-bar">
+        <div class="loader-progress"></div>
+      </div>
+      <small class="text-secondary mt-2"
+        >Connecting Cross-Device Stream Pipelines...</small
+      >
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-transparent py-3">
+      <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="#">
+          <i class="fa-solid fa-tower-broadcast text-primary me-2"></i>Cast<span
+            class="text-info"
+            >Flow</span
+          >
+          Pro
+        </a>
+        <div class="d-flex align-items-center gap-2">
+          <span
+            id="connStatus"
+            class="badge bg-dark border border-secondary text-warning px-3 py-2"
+          >
+            <i class="fa-solid fa-circle fa-beat me-1"></i> Starting WebRTC
+            Engine...
+          </span>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container py-2">
+      <!-- SENDER / HOST VIEW -->
+      <div id="senderView" class="row justify-content-center">
+        <div class="col-lg-6">
+          <div class="glass-card p-4 p-md-5 text-center">
+            <div class="mb-4">
+              <div
+                class="d-flex justify-content-center gap-3 fs-3 text-secondary mb-3"
+              >
+                <i
+                  class="fa-solid fa-mobile-screen-button text-primary"
+                  title="Mobile"
+                ></i>
+                <i
+                  class="fa-solid fa-tablet-screen-button text-info"
+                  title="Tablet"
+                ></i>
+                <i
+                  class="fa-solid fa-laptop text-warning"
+                  title="Laptop/Desktop"
+                ></i>
+                <i class="fa-solid fa-tv text-danger" title="Smart TV"></i>
+              </div>
+              <h2 class="fw-bold">Universal Screen Cast</h2>
+              <p class="text-secondary">
+                Cast live from Android, iPhone, Windows, Mac, or Tablet directly
+                to any display or browser.
+              </p>
+            </div>
+
+            <!-- Quality Selector -->
+            <div class="row g-2 mb-4 text-start">
+              <div class="col-6">
+                <label class="small text-secondary fw-semibold mb-1"
+                  >Quality Preset</label
+                >
+                <select
+                  id="qualitySelect"
+                  class="form-select bg-dark text-light border-secondary"
+                >
+                  <option value="1080p" selected>
+                    Full HD (1080p @ 60fps)
+                  </option>
+                  <option value="4k">Ultra HD (4K @ 30fps)</option>
+                  <option value="720p">Smooth (720p @ 60fps)</option>
+                  <option value="mobile">Data Saver (480p @ 30fps)</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="small text-secondary fw-semibold mb-1"
+                  >Device Profile</label
+                >
+                <select
+                  id="deviceTypeSelect"
+                  class="form-select bg-dark text-light border-secondary"
+                >
+                  <option value="auto" selected>Auto Detect</option>
+                  <option value="mobile">Mobile Screen</option>
+                  <option value="tablet">Tablet Screen</option>
+                  <option value="desktop">Desktop Display</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="initCard">
+              <button
+                id="startBtn"
+                class="btn btn-gradient btn-lg w-100 py-3 shadow"
+                onclick="startCast()"
+                disabled
+              >
+                <i class="fa-solid fa-circle-play me-2"></i> Start Screen
+                Sharing
+              </button>
+            </div>
+
+            <!-- Active Broadcasting State -->
+            <div id="activeCard" class="d-none text-start mt-4">
+              <div class="alert alert-success d-flex align-items-center">
+                <i class="fa-solid fa-circle-check fs-4 me-3"></i>
+                <div>
+                  <strong>Live Cast Stream Active!</strong> Scan or send this
+                  URL to mirror.
+                </div>
+              </div>
+
+              <label class="form-label text-secondary small fw-bold"
+                >Receiver Mirror Link:</label
+              >
+              <div class="input-group mb-3">
+                <input
+                  type="text"
+                  id="shareUrl"
+                  class="form-control bg-dark text-light border-secondary"
+                  readonly
+                />
+                <button class="btn btn-outline-info" onclick="copyLink()">
+                  <i class="fa-regular fa-copy me-1"></i> Copy
+                </button>
+              </div>
+
+              <div class="text-center my-3">
+                <div id="qrcode" class="d-inline-block shadow"></div>
+                <p class="text-secondary small mt-2">
+                  <i class="fa-solid fa-qrcode me-1"></i> Point Mobile/TV camera
+                  to open viewer instantly
+                </p>
+              </div>
+
+              <div class="d-flex gap-2 justify-content-center mt-4">
+                <button class="btn btn-danger px-4 py-2" onclick="stopCast()">
+                  <i class="fa-solid fa-stop me-2"></i> Stop Cast
+                </button>
+                <button
+                  class="btn btn-outline-light px-3 py-2"
+                  onclick="toggleChat()"
+                >
+                  <i class="fa-solid fa-comment-dots me-1"></i> Live Chat
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECEIVER / VIEWER VIEW -->
+      <div id="receiverView" class="d-none">
+        <!-- Toolbar Controls -->
+        <div
+          class="glass-card p-3 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-3"
+        >
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-danger px-3 py-2">
+              <i class="fa-solid fa-broadcast-tower fa-fade me-1"></i> LIVE
+              STREAM
+            </span>
+            <span id="resolutionBadge" class="badge bg-secondary"
+              >Detecting Stream...</span
+            >
+          </div>
+
+          <!-- Frame Switcher Buttons -->
+          <div class="btn-group" role="group">
+            <button
+              class="btn btn-sm btn-outline-info"
+              onclick="setDeviceFrame('mobile')"
+              title="Phone Mockup"
+            >
+              <i class="fa-solid fa-mobile-screen"></i> Phone
+            </button>
+            <button
+              class="btn btn-sm btn-outline-info"
+              onclick="setDeviceFrame('tablet')"
+              title="Tablet View"
+            >
+              <i class="fa-solid fa-tablet-screen-button"></i> Tablet
+            </button>
+            <button
+              class="btn btn-sm btn-outline-info"
+              onclick="setDeviceFrame('desktop')"
+              title="Desktop View"
+            >
+              <i class="fa-solid fa-laptop"></i> Desktop
+            </button>
+            <button
+              class="btn btn-sm btn-outline-info"
+              onclick="setDeviceFrame('tv')"
+              title="Smart TV / Cinema"
+            >
+              <i class="fa-solid fa-tv"></i> TV Mode
+            </button>
+          </div>
+
+          <!-- Action Controls -->
+          <div class="d-flex gap-2">
+            <button
+              class="btn btn-sm btn-outline-light"
+              onclick="captureScreenshot()"
+              title="Take Screenshot"
+            >
+              <i class="fa-solid fa-camera me-1"></i> Screenshot
+            </button>
+            <button
+              class="btn btn-sm btn-outline-light"
+              onclick="togglePiP()"
+              title="Picture-in-Picture"
+            >
+              <i class="fa-solid fa-window-restore me-1"></i> PiP
+            </button>
+            <button
+              class="btn btn-sm btn-primary"
+              onclick="toggleFullScreen()"
+              title="Fullscreen"
+            >
+              <i class="fa-solid fa-expand me-1"></i> Fullscreen
+            </button>
+          </div>
+        </div>
+
+        <!-- Video Display Arena -->
+        <div class="device-stage">
+          <div id="activeDeviceFrame" class="frame-mobile">
+            <div id="notchElem" class="notch">
+              <div class="notch-dot"></div>
+              <div class="notch-bar"></div>
+            </div>
+
+            <div class="screen-container">
+              <div id="waitingMsg" class="text-secondary text-center p-4">
+                <i
+                  class="fa-solid fa-circle-notch fa-spin fs-1 mb-3 text-info"
+                ></i>
+                <p class="mb-0">Establishing encrypted peer stream...</p>
+              </div>
+              <video id="receiverVideo" autoplay playsinline muted></video>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Chat Floating Window -->
+    <div id="liveChatCard" class="glass-card chat-box d-none p-3 shadow-lg">
+      <div
+        class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-2 mb-2"
+      >
+        <h6 class="m-0 fw-bold">
+          <i class="fa-solid fa-comments me-2 text-info"></i>Live Room Chat
+        </h6>
+        <button
+          class="btn btn-sm btn-close btn-close-white"
+          onclick="toggleChat()"
+        ></button>
+      </div>
+      <div
+        id="chatMessages"
+        class="chat-messages d-flex flex-column gap-1 p-2"
+      ></div>
+      <div class="input-group mt-2">
+        <input
+          type="text"
+          id="chatInput"
+          class="form-control form-control-sm bg-dark text-light border-secondary"
+          placeholder="Type a message..."
+        />
+        <button class="btn btn-sm btn-gradient" onclick="sendChatMessage()">
+          Send
+        </button>
+      </div>
+    </div>
+
+    <script>
+      let peer = null;
+      let localStream = null;
+      let activeCall = null;
+      let dataConnection = null;
+
+      // 1. Initial 3-Second Loading Animation
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          const splash = document.getElementById("splash-screen");
+          splash.style.opacity = "0";
+          setTimeout(() => {
+            splash.style.display = "none";
+            initApplication();
+          }, 600);
+        }, 3000);
       });
 
-      // Poll for Receiver's Answer & ICE candidates
-      pollTimer = setInterval(async () => {
-        const res = await fetch(`${SCRIPT_URL}?action=getSignals&roomId=${currentRoom}`);
-        const data = await res.json();
+      function initApplication() {
+        const params = new URLSearchParams(window.location.search);
+        const roomKey = params.get("room");
+        const initialFrame = params.get("frame") || "auto";
 
-        if (data.success && data.data) {
-          // Set Answer from receiver
-          if (data.data.answer && !peerConn.currentRemoteDescription) {
-            await peerConn.setRemoteDescription(new RTCSessionDescription(data.data.answer));
-          }
-
-          // Add ICE Candidates
-          if (data.data.candidates) {
-            data.data.candidates.forEach(async (c) => {
-              const key = JSON.stringify(c.candidate);
-              if (c.role === "receiver" && !seenCandidates.has(key)) {
-                seenCandidates.add(key);
-                await peerConn.addIceCandidate(new RTCIceCandidate(c.candidate));
-              }
-            });
-          }
+        if (roomKey) {
+          document.getElementById("senderView").classList.add("d-none");
+          document.getElementById("receiverView").classList.remove("d-none");
+          initReceiver(roomKey, initialFrame);
+        } else {
+          initSender();
         }
-      }, 1500);
-    }
-
-    function stopMirroring() {
-      if (localStream) {
-        localStream.getTracks().forEach(t => t.stop());
-        localStream = null;
-      }
-      if (peerConn) {
-        peerConn.close();
-        peerConn = null;
-      }
-      if (pollTimer) clearInterval(pollTimer);
-
-      if (currentRoom) {
-        sendSignalingData({ type: "stop" });
       }
 
-      document.getElementById("initCard").classList.remove("d-none");
-      document.getElementById("activeCard").classList.add("d-none");
-    }
+      // ==========================================
+      // SENDER (HOST)
+      // ==========================================
+      function initSender() {
+        peer = new Peer();
 
-    // ==========================================
-    // RECEIVER (VIEWER)
-    // ==========================================
-    async function initReceiver(roomId) {
-      peerConn = new RTCPeerConnection(rtcConfig);
-      const videoElem = document.getElementById("receiverVideo");
-      const waitMsg = document.getElementById("waitingMsg");
+        peer.on("open", (id) => {
+          document.getElementById("startBtn").disabled = false;
+          const status = document.getElementById("connStatus");
+          status.className =
+            "badge bg-dark border border-secondary text-success px-3 py-2";
+          status.innerHTML =
+            '<i class="fa-solid fa-circle-check me-1"></i> Engine Ready to Cast';
 
-      peerConn.ontrack = (event) => {
-        waitMsg.classList.add("d-none");
-        videoElem.classList.remove("d-none");
-        videoElem.srcObject = event.streams[0];
-      };
-
-      peerConn.onicecandidate = (e) => {
-        if (e.candidate) {
-          sendSignalingData({
-            type: "candidate",
-            role: "receiver",
-            candidate: e.candidate
+          // Listen for viewer stream calls
+          peer.on("call", (call) => {
+            if (localStream) {
+              call.answer(localStream);
+            }
           });
+
+          // Listen for viewer data channel (chat)
+          peer.on("connection", (conn) => {
+            dataConnection = conn;
+            setupChatListener();
+          });
+        });
+      }
+
+      async function startCast() {
+        const quality = document.getElementById("qualitySelect").value;
+        const deviceProfile = document.getElementById("deviceTypeSelect").value;
+
+        // Dynamic Video Constraints based on preset
+        let videoConstraints = { cursor: "always" };
+        if (quality === "4k") {
+          videoConstraints.width = { ideal: 3840 };
+          videoConstraints.height = { ideal: 2160 };
+          videoConstraints.frameRate = { ideal: 30 };
+        } else if (quality === "1080p") {
+          videoConstraints.width = { ideal: 1920 };
+          videoConstraints.height = { ideal: 1080 };
+          videoConstraints.frameRate = { ideal: 60 };
+        } else if (quality === "720p") {
+          videoConstraints.width = { ideal: 1280 };
+          videoConstraints.height = { ideal: 720 };
+          videoConstraints.frameRate = { ideal: 60 };
+        } else if (quality === "mobile") {
+          videoConstraints.width = { ideal: 854 };
+          videoConstraints.height = { ideal: 480 };
+          videoConstraints.frameRate = { ideal: 30 };
         }
-      };
 
-      // Poll until Host's Offer is ready
-      pollTimer = setInterval(async () => {
-        const res = await fetch(`${SCRIPT_URL}?action=getSignals&roomId=${roomId}`);
-        const data = await res.json();
-
-        if (data.success && data.data) {
-          if (data.data.status === "ended") {
-            clearInterval(pollTimer);
-            videoElem.classList.add("d-none");
-            waitMsg.classList.remove("d-none");
-            waitMsg.innerHTML = "<i class='fa-solid fa-circle-xmark text-danger fs-1 mb-2'></i><p>Sharing Stopped by Host</p>";
-            return;
-          }
-
-          // Handle Offer
-          if (data.data.offer && !peerConn.currentRemoteDescription) {
-            await peerConn.setRemoteDescription(new RTCSessionDescription(data.data.offer));
-            const answer = await peerConn.createAnswer();
-            await peerConn.setLocalDescription(answer);
-
-            await sendSignalingData({
-              type: "answer",
-              answer: answer
+        try {
+          // Universal Display Media (Supports Mobile Chrome, Desktop, Tablet, etc.)
+          if (
+            navigator.mediaDevices &&
+            navigator.mediaDevices.getDisplayMedia
+          ) {
+            localStream = await navigator.mediaDevices.getDisplayMedia({
+              video: videoConstraints,
+              audio: false,
+            });
+          } else {
+            // Fallback for mobile devices lacking standard getDisplayMedia
+            localStream = await navigator.mediaDevices.getUserMedia({
+              video: { facingMode: "environment" },
             });
           }
 
-          // Handle ICE
-          if (data.data.candidates) {
-            data.data.candidates.forEach(async (c) => {
-              const key = JSON.stringify(c.candidate);
-              if (c.role === "host" && !seenCandidates.has(key)) {
-                seenCandidates.add(key);
-                await peerConn.addIceCandidate(new RTCIceCandidate(c.candidate));
+          const shareUrl = `${window.location.origin}${window.location.pathname}?room=${peer.id}&frame=${deviceProfile}`;
+          document.getElementById("shareUrl").value = shareUrl;
+
+          // Render QR Code
+          document.getElementById("qrcode").innerHTML = "";
+          new QRCode(document.getElementById("qrcode"), {
+            text: shareUrl,
+            width: 140,
+            height: 140,
+          });
+
+          document.getElementById("initCard").classList.add("d-none");
+          document.getElementById("activeCard").classList.remove("d-none");
+
+          localStream.getVideoTracks()[0].onended = () => stopCast();
+        } catch (err) {
+          alert(
+            "Screen capture was not approved or is unsupported on this browser version.",
+          );
+          console.error(err);
+        }
+      }
+
+      function stopCast() {
+        if (localStream) {
+          localStream.getTracks().forEach((t) => t.stop());
+          localStream = null;
+        }
+        document.getElementById("initCard").classList.remove("d-none");
+        document.getElementById("activeCard").classList.add("d-none");
+      }
+
+      // ==========================================
+      // RECEIVER (VIEWER)
+      // ==========================================
+      function initReceiver(hostId, preferredFrame) {
+        peer = new Peer();
+
+        peer.on("open", () => {
+          const status = document.getElementById("connStatus");
+          status.className =
+            "badge bg-dark border border-secondary text-success px-3 py-2";
+          status.innerHTML =
+            '<i class="fa-solid fa-tower-broadcast me-1"></i> Connected to Host';
+
+          // Connect data connection for chat
+          dataConnection = peer.connect(hostId);
+          setupChatListener();
+
+          // Connect media stream with dummy track
+          const dummyCanvas = document.createElement("canvas");
+          dummyCanvas.width = 1;
+          dummyCanvas.height = 1;
+          const dummyStream = dummyCanvas.captureStream();
+
+          activeCall = peer.call(hostId, dummyStream);
+
+          activeCall.on("stream", (remoteStream) => {
+            const video = document.getElementById("receiverVideo");
+            document.getElementById("waitingMsg").classList.add("d-none");
+            video.srcObject = remoteStream;
+            video.play().catch((e) => console.log(e));
+
+            // Auto-detect resolution & adjust frame
+            video.onloadedmetadata = () => {
+              const width = video.videoWidth;
+              const height = video.videoHeight;
+              document.getElementById("resolutionBadge").innerText =
+                `${width}x${height}`;
+
+              if (preferredFrame === "auto") {
+                if (height > width) {
+                  setDeviceFrame("mobile");
+                } else if (width / height < 1.5) {
+                  setDeviceFrame("tablet");
+                } else {
+                  setDeviceFrame("desktop");
+                }
+              } else {
+                setDeviceFrame(preferredFrame);
               }
-            });
-          }
+            };
+          });
+
+          activeCall.on("close", () => {
+            document.getElementById("waitingMsg").classList.remove("d-none");
+            document.getElementById("waitingMsg").innerHTML = `
+            <i class="fa-solid fa-circle-xmark text-danger fs-1 mb-2"></i>
+            <p>The host ended the casting session.</p>
+          `;
+          });
+        });
+      }
+
+      // Dynamic Device Frame Switcher
+      function setDeviceFrame(type) {
+        const frame = document.getElementById("activeDeviceFrame");
+        const notch = document.getElementById("notchElem");
+
+        frame.className = `frame-${type}`;
+        if (type === "mobile") {
+          notch.classList.remove("d-none");
+        } else {
+          notch.classList.add("d-none");
         }
-      }, 1500);
-    }
-
-    // Clean Base64 GET-based Transport (Works around Google Apps Script CORS restrictions)
-    async function sendSignalingData(payload) {
-      try {
-        const base64Str = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-        await fetch(`${SCRIPT_URL}?action=pushData&roomId=${currentRoom}&data=${encodeURIComponent(base64Str)}`);
-      } catch (err) {
-        console.error("Signal send failed:", err);
       }
-    }
 
-    function copyLink() {
-      const copyText = document.getElementById("shareUrl");
-      copyText.select();
-      navigator.clipboard.writeText(copyText.value);
-      alert("Mirroring Link copied!");
-    }
+      // Screenshot Tool
+      function captureScreenshot() {
+        const video = document.getElementById("receiverVideo");
+        if (!video.videoWidth) return;
 
-    function toggleFullScreen() {
-      const video = document.getElementById("receiverVideo");
-      if (!document.fullscreenElement) {
-        if (video.requestFullscreen) video.requestFullscreen();
-      } else {
-        if (document.exitFullscreen) document.exitFullscreen();
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const link = document.createElement("a");
+        link.download = `castflow-capture-${Date.now()}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
       }
-    }
-  </script>
-</body>
+
+      // Picture-in-Picture
+      async function togglePiP() {
+        const video = document.getElementById("receiverVideo");
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+        } else if (video.requestPictureInPicture) {
+          await video.requestPictureInPicture();
+        }
+      }
+
+      // Fullscreen
+      function toggleFullScreen() {
+        const frame = document.getElementById("activeDeviceFrame");
+        if (!document.fullscreenElement) {
+          if (frame.requestFullscreen) frame.requestFullscreen();
+        } else {
+          if (document.exitFullscreen) document.exitFullscreen();
+        }
+      }
+
+      // Chat System
+      function toggleChat() {
+        const chatCard = document.getElementById("liveChatCard");
+        chatCard.classList.toggle("d-none");
+      }
+
+      function setupChatListener() {
+        if (!dataConnection) return;
+        dataConnection.on("data", (msg) => {
+          renderChatMessage(msg, "in");
+        });
+      }
+
+      function sendChatMessage() {
+        const input = document.getElementById("chatInput");
+        const msg = input.value.trim();
+        if (!msg || !dataConnection) return;
+
+        dataConnection.send(msg);
+        renderChatMessage(msg, "out");
+        input.value = "";
+      }
+
+      function renderChatMessage(text, direction) {
+        const box = document.getElementById("chatMessages");
+        const div = document.createElement("div");
+        div.className = `chat-msg chat-${direction}`;
+        div.innerText = text;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+      }
+
+      function copyLink() {
+        const copyText = document.getElementById("shareUrl");
+        copyText.select();
+        navigator.clipboard.writeText(copyText.value);
+        alert("Mirroring Link copied to clipboard!");
+      }
+    </script>
+  </body>
 </html>
