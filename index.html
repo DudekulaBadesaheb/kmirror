@@ -6,39 +6,35 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>CastFlow Universal - Cross-Device Screen Mirroring</title>
+    <title>OmniCast Ultra - Universal Mirror Engine</title>
 
     <!-- Bootstrap 5 -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <!-- FontAwesome 6 Icons -->
+    <!-- FontAwesome 6 -->
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
       rel="stylesheet"
     />
     <!-- Google Fonts -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <!-- QR Code Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- PeerJS Real-Time P2P WebRTC Engine -->
+    <!-- PeerJS Engine -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
     <style>
       :root {
-        --primary-gradient: linear-gradient(
-          135deg,
-          #6366f1 0%,
-          #a855f7 50%,
-          #ec4899 100%
-        );
+        --primary: #6366f1;
+        --accent: #ec4899;
         --dark-bg: #07090e;
-        --card-bg: rgba(18, 24, 38, 0.85);
-        --border-glow: rgba(99, 102, 241, 0.25);
+        --card-bg: rgba(15, 23, 42, 0.85);
+        --border-glow: rgba(99, 102, 241, 0.3);
       }
 
       * {
@@ -53,7 +49,7 @@
         overflow-x: hidden;
       }
 
-      /* 3-Second Interactive Splash Screen */
+      /* 3-Second Loading Animation */
       #splash-screen {
         position: fixed;
         top: 0;
@@ -73,18 +69,18 @@
         width: 90px;
         height: 90px;
         border-radius: 50%;
-        background: var(--primary-gradient);
+        background: linear-gradient(135deg, var(--primary), var(--accent));
         display: flex;
         justify-content: center;
         align-items: center;
         font-size: 2.2rem;
         color: #fff;
-        box-shadow: 0 0 40px rgba(168, 85, 247, 0.7);
-        animation: pulseGlow 1.5s infinite alternate;
+        box-shadow: 0 0 45px rgba(99, 102, 241, 0.7);
+        animation: pulse 1.5s infinite alternate;
       }
 
       .loader-bar {
-        width: 220px;
+        width: 240px;
         height: 6px;
         background: rgba(255, 255, 255, 0.1);
         border-radius: 10px;
@@ -92,19 +88,21 @@
         overflow: hidden;
       }
 
-      .loader-progress {
+      .loader-fill {
         width: 0%;
         height: 100%;
-        background: var(--primary-gradient);
+        background: linear-gradient(90deg, var(--primary), var(--accent));
         animation: fillBar 3s forwards cubic-bezier(0.1, 0.8, 0.3, 1);
       }
 
-      @keyframes pulseGlow {
+      @keyframes pulse {
         0% {
           transform: scale(0.95);
+          filter: drop-shadow(0 0 10px var(--primary));
         }
         100% {
-          transform: scale(1.05);
+          transform: scale(1.08);
+          filter: drop-shadow(0 0 30px var(--accent));
         }
       }
 
@@ -117,21 +115,25 @@
         }
       }
 
-      /* Modern Glassmorphic Container */
+      /* Glass UI */
       .glass-card {
         background: var(--card-bg);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         border: 1px solid var(--border-glow);
         border-radius: 24px;
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
       }
 
       .btn-gradient {
-        background: var(--primary-gradient);
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--accent) 100%
+        );
         color: #fff;
         border: none;
-        font-weight: 600;
+        font-weight: 700;
         border-radius: 14px;
         transition: all 0.3s ease;
       }
@@ -142,34 +144,35 @@
         color: #fff;
       }
 
-      /* Device Preview Frame System */
+      /* Adaptive Universal Device Mockups */
       .device-stage {
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 580px;
+        min-height: 70vh;
         padding: 10px 0;
       }
 
-      /* 1. Mobile Phone Mockup */
-      .frame-mobile {
+      /* Phone Mockup */
+      .frame-phone {
         position: relative;
-        width: 340px;
-        height: 680px;
+        width: 350px;
+        height: 710px;
         background: #000;
-        border-radius: 46px;
+        border-radius: 48px;
         border: 12px solid #1e293b;
-        box-shadow: 0 0 50px rgba(99, 102, 241, 0.35);
+        box-shadow: 0 0 60px rgba(99, 102, 241, 0.4);
         overflow: hidden;
+        transition: all 0.4s ease;
       }
 
-      .notch {
+      .phone-notch {
         position: absolute;
         top: 10px;
         left: 50%;
         transform: translateX(-50%);
-        width: 100px;
-        height: 22px;
+        width: 110px;
+        height: 24px;
         background: #000;
         border-radius: 20px;
         z-index: 100;
@@ -179,58 +182,61 @@
         padding: 0 8px;
       }
 
-      .notch-dot {
+      .notch-camera {
         width: 8px;
         height: 8px;
         background: #334155;
         border-radius: 50%;
       }
-      .notch-bar {
-        width: 36px;
+      .notch-speaker {
+        width: 40px;
         height: 4px;
         background: #334155;
         border-radius: 4px;
       }
 
-      /* 2. Tablet Frame */
+      /* Tablet Mockup */
       .frame-tablet {
         position: relative;
-        width: 580px;
-        height: 440px;
+        width: 650px;
+        height: 480px;
         background: #000;
-        border-radius: 28px;
+        border-radius: 30px;
         border: 14px solid #1e293b;
-        box-shadow: 0 0 50px rgba(168, 85, 247, 0.35);
+        box-shadow: 0 0 60px rgba(168, 85, 247, 0.4);
         overflow: hidden;
+        transition: all 0.4s ease;
       }
 
-      /* 3. Desktop / Laptop Frame */
+      /* Desktop/Laptop Display */
       .frame-desktop {
         position: relative;
-        width: 90%;
-        max-width: 820px;
-        height: 480px;
+        width: 95%;
+        max-width: 900px;
+        height: 520px;
         background: #000;
         border-radius: 16px;
         border: 10px solid #1e293b;
-        box-shadow: 0 0 50px rgba(236, 72, 153, 0.3);
+        box-shadow: 0 0 60px rgba(236, 72, 153, 0.35);
         overflow: hidden;
+        transition: all 0.4s ease;
       }
 
-      /* 4. Smart TV / Cinema Mode */
+      /* Smart TV / Cinema View */
       .frame-tv {
         position: relative;
-        width: 95%;
-        max-width: 960px;
-        height: 520px;
+        width: 98%;
+        max-width: 1100px;
+        height: 580px;
         background: #000;
         border-radius: 8px;
         border: 4px solid #334155;
-        box-shadow: 0 0 70px rgba(99, 102, 241, 0.5);
+        box-shadow: 0 0 80px rgba(99, 102, 241, 0.5);
         overflow: hidden;
+        transition: all 0.4s ease;
       }
 
-      .screen-container {
+      .display-screen {
         width: 100%;
         height: 100%;
         background: #000;
@@ -240,44 +246,11 @@
         position: relative;
       }
 
-      .screen-container video {
+      .display-screen video,
+      .display-screen canvas {
         width: 100%;
         height: 100%;
         object-fit: contain;
-      }
-
-      /* Chat Overlay */
-      .chat-box {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 320px;
-        height: 380px;
-        z-index: 1000;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .chat-messages {
-        flex-grow: 1;
-        overflow-y: auto;
-        font-size: 0.85rem;
-      }
-
-      .chat-msg {
-        margin-bottom: 8px;
-        padding: 6px 12px;
-        border-radius: 12px;
-        max-width: 85%;
-      }
-
-      .chat-in {
-        background: #1e293b;
-        align-self: flex-start;
-      }
-      .chat-out {
-        background: #6366f1;
-        align-self: flex-end;
       }
 
       #qrcode img {
@@ -294,40 +267,38 @@
       <div class="loader-orb">
         <i class="fa-solid fa-satellite-dish"></i>
       </div>
-      <h4 class="mt-4 fw-bold">INITIALIZING CASTFLOW PRO</h4>
+      <h4 class="mt-4 fw-bold tracking-wide">INITIALIZING OMNICAST PRO</h4>
       <div class="loader-bar">
-        <div class="loader-progress"></div>
+        <div class="loader-fill"></div>
       </div>
       <small class="text-secondary mt-2"
-        >Connecting Cross-Device Stream Pipelines...</small
+        >Configuring cross-network relay mesh...</small
       >
     </div>
 
-    <!-- Navbar -->
+    <!-- Header -->
     <nav class="navbar navbar-dark bg-transparent py-3">
       <div class="container">
         <a class="navbar-brand fw-bold fs-4" href="#">
-          <i class="fa-solid fa-tower-broadcast text-primary me-2"></i>Cast<span
+          <i class="fa-solid fa-tower-broadcast text-primary me-2"></i>Omni<span
             class="text-info"
-            >Flow</span
+            >Cast</span
           >
-          Pro
+          Ultra
         </a>
-        <div class="d-flex align-items-center gap-2">
-          <span
-            id="connStatus"
-            class="badge bg-dark border border-secondary text-warning px-3 py-2"
-          >
-            <i class="fa-solid fa-circle fa-beat me-1"></i> Starting WebRTC
-            Engine...
-          </span>
-        </div>
+        <span
+          id="connStatus"
+          class="badge bg-dark border border-secondary text-warning px-3 py-2"
+        >
+          <i class="fa-solid fa-circle-notch fa-spin me-1"></i> Starting Network
+          Nodes...
+        </span>
       </div>
     </nav>
 
     <div class="container py-2">
-      <!-- SENDER / HOST VIEW -->
-      <div id="senderView" class="row justify-content-center">
+      <!-- SENDER / CASTING DASHBOARD -->
+      <div id="senderSection" class="row justify-content-center">
         <div class="col-lg-6">
           <div class="glass-card p-4 p-md-5 text-center">
             <div class="mb-4">
@@ -342,58 +313,21 @@
                   class="fa-solid fa-tablet-screen-button text-info"
                   title="Tablet"
                 ></i>
-                <i
-                  class="fa-solid fa-laptop text-warning"
-                  title="Laptop/Desktop"
-                ></i>
+                <i class="fa-solid fa-laptop text-warning" title="Laptop"></i>
                 <i class="fa-solid fa-tv text-danger" title="Smart TV"></i>
               </div>
               <h2 class="fw-bold">Universal Screen Cast</h2>
               <p class="text-secondary">
-                Cast live from Android, iPhone, Windows, Mac, or Tablet directly
-                to any display or browser.
+                Cast live from Android, iPhone, Windows, Mac, or Tablet to any
+                viewer instantly with zero lag.
               </p>
-            </div>
-
-            <!-- Quality Selector -->
-            <div class="row g-2 mb-4 text-start">
-              <div class="col-6">
-                <label class="small text-secondary fw-semibold mb-1"
-                  >Quality Preset</label
-                >
-                <select
-                  id="qualitySelect"
-                  class="form-select bg-dark text-light border-secondary"
-                >
-                  <option value="1080p" selected>
-                    Full HD (1080p @ 60fps)
-                  </option>
-                  <option value="4k">Ultra HD (4K @ 30fps)</option>
-                  <option value="720p">Smooth (720p @ 60fps)</option>
-                  <option value="mobile">Data Saver (480p @ 30fps)</option>
-                </select>
-              </div>
-              <div class="col-6">
-                <label class="small text-secondary fw-semibold mb-1"
-                  >Device Profile</label
-                >
-                <select
-                  id="deviceTypeSelect"
-                  class="form-select bg-dark text-light border-secondary"
-                >
-                  <option value="auto" selected>Auto Detect</option>
-                  <option value="mobile">Mobile Screen</option>
-                  <option value="tablet">Tablet Screen</option>
-                  <option value="desktop">Desktop Display</option>
-                </select>
-              </div>
             </div>
 
             <div id="initCard">
               <button
                 id="startBtn"
                 class="btn btn-gradient btn-lg w-100 py-3 shadow"
-                onclick="startCast()"
+                onclick="startScreenCast()"
                 disabled
               >
                 <i class="fa-solid fa-circle-play me-2"></i> Start Screen
@@ -401,13 +335,13 @@
               </button>
             </div>
 
-            <!-- Active Broadcasting State -->
+            <!-- Active Mirroring Dashboard -->
             <div id="activeCard" class="d-none text-start mt-4">
               <div class="alert alert-success d-flex align-items-center">
                 <i class="fa-solid fa-circle-check fs-4 me-3"></i>
                 <div>
-                  <strong>Live Cast Stream Active!</strong> Scan or send this
-                  URL to mirror.
+                  <strong>Live Cast Stream Active!</strong> Scan or open this
+                  link on the receiver device.
                 </div>
               </div>
 
@@ -429,20 +363,17 @@
               <div class="text-center my-3">
                 <div id="qrcode" class="d-inline-block shadow"></div>
                 <p class="text-secondary small mt-2">
-                  <i class="fa-solid fa-qrcode me-1"></i> Point Mobile/TV camera
-                  to open viewer instantly
+                  <i class="fa-solid fa-qrcode me-1"></i> Point any phone/TV
+                  camera to connect
                 </p>
               </div>
 
-              <div class="d-flex gap-2 justify-content-center mt-4">
-                <button class="btn btn-danger px-4 py-2" onclick="stopCast()">
-                  <i class="fa-solid fa-stop me-2"></i> Stop Cast
-                </button>
+              <div class="text-center mt-4">
                 <button
-                  class="btn btn-outline-light px-3 py-2"
-                  onclick="toggleChat()"
+                  class="btn btn-danger px-5 py-2"
+                  onclick="stopScreenCast()"
                 >
-                  <i class="fa-solid fa-comment-dots me-1"></i> Live Chat
+                  <i class="fa-solid fa-stop me-2"></i> Stop Screen Share
                 </button>
               </div>
             </div>
@@ -450,9 +381,9 @@
         </div>
       </div>
 
-      <!-- RECEIVER / VIEWER VIEW -->
-      <div id="receiverView" class="d-none">
-        <!-- Toolbar Controls -->
+      <!-- RECEIVER / VIEWER DASHBOARD -->
+      <div id="receiverSection" class="d-none">
+        <!-- Top Action Toolbar -->
         <div
           class="glass-card p-3 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-3"
         >
@@ -461,58 +392,50 @@
               <i class="fa-solid fa-broadcast-tower fa-fade me-1"></i> LIVE
               STREAM
             </span>
-            <span id="resolutionBadge" class="badge bg-secondary"
-              >Detecting Stream...</span
+            <span id="resolutionBadge" class="badge bg-secondary font-monospace"
+              >Detecting Feed...</span
             >
           </div>
 
-          <!-- Frame Switcher Buttons -->
+          <!-- Frame Switcher -->
           <div class="btn-group" role="group">
             <button
               class="btn btn-sm btn-outline-info"
-              onclick="setDeviceFrame('mobile')"
+              onclick="setFrameType('phone')"
               title="Phone Mockup"
             >
               <i class="fa-solid fa-mobile-screen"></i> Phone
             </button>
             <button
               class="btn btn-sm btn-outline-info"
-              onclick="setDeviceFrame('tablet')"
-              title="Tablet View"
+              onclick="setFrameType('tablet')"
+              title="Tablet Mockup"
             >
               <i class="fa-solid fa-tablet-screen-button"></i> Tablet
             </button>
             <button
               class="btn btn-sm btn-outline-info"
-              onclick="setDeviceFrame('desktop')"
-              title="Desktop View"
+              onclick="setFrameType('desktop')"
+              title="Desktop Display"
             >
               <i class="fa-solid fa-laptop"></i> Desktop
             </button>
             <button
               class="btn btn-sm btn-outline-info"
-              onclick="setDeviceFrame('tv')"
-              title="Smart TV / Cinema"
+              onclick="setFrameType('tv')"
+              title="Cinema TV"
             >
               <i class="fa-solid fa-tv"></i> TV Mode
             </button>
           </div>
 
-          <!-- Action Controls -->
           <div class="d-flex gap-2">
             <button
               class="btn btn-sm btn-outline-light"
-              onclick="captureScreenshot()"
-              title="Take Screenshot"
+              onclick="captureSnapshot()"
+              title="Capture Screenshot"
             >
-              <i class="fa-solid fa-camera me-1"></i> Screenshot
-            </button>
-            <button
-              class="btn btn-sm btn-outline-light"
-              onclick="togglePiP()"
-              title="Picture-in-Picture"
-            >
-              <i class="fa-solid fa-window-restore me-1"></i> PiP
+              <i class="fa-solid fa-camera me-1"></i> Snapshot
             </button>
             <button
               class="btn btn-sm btn-primary"
@@ -526,93 +449,90 @@
 
         <!-- Video Display Arena -->
         <div class="device-stage">
-          <div id="activeDeviceFrame" class="frame-mobile">
-            <div id="notchElem" class="notch">
-              <div class="notch-dot"></div>
-              <div class="notch-bar"></div>
+          <div id="activeFrame" class="frame-phone">
+            <div id="phoneNotch" class="phone-notch">
+              <div class="notch-camera"></div>
+              <div class="notch-speaker"></div>
             </div>
 
-            <div class="screen-container">
+            <div class="display-screen">
               <div id="waitingMsg" class="text-secondary text-center p-4">
                 <i
                   class="fa-solid fa-circle-notch fa-spin fs-1 mb-3 text-info"
                 ></i>
-                <p class="mb-0">Establishing encrypted peer stream...</p>
+                <p class="mb-0">Connecting to sender device...</p>
               </div>
-              <video id="receiverVideo" autoplay playsinline muted></video>
+
+              <!-- Video Element for WebRTC Stream -->
+              <video
+                id="remoteVideo"
+                autoplay
+                playsinline
+                muted
+                class="d-none"
+              ></video>
+              <!-- Canvas Element for Cellular / Strict NAT Fallback -->
+              <canvas id="fallbackCanvas" class="d-none"></canvas>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Live Chat Floating Window -->
-    <div id="liveChatCard" class="glass-card chat-box d-none p-3 shadow-lg">
-      <div
-        class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-2 mb-2"
-      >
-        <h6 class="m-0 fw-bold">
-          <i class="fa-solid fa-comments me-2 text-info"></i>Live Room Chat
-        </h6>
-        <button
-          class="btn btn-sm btn-close btn-close-white"
-          onclick="toggleChat()"
-        ></button>
-      </div>
-      <div
-        id="chatMessages"
-        class="chat-messages d-flex flex-column gap-1 p-2"
-      ></div>
-      <div class="input-group mt-2">
-        <input
-          type="text"
-          id="chatInput"
-          class="form-control form-control-sm bg-dark text-light border-secondary"
-          placeholder="Type a message..."
-        />
-        <button class="btn btn-sm btn-gradient" onclick="sendChatMessage()">
-          Send
-        </button>
-      </div>
-    </div>
-
     <script>
       let peer = null;
       let localStream = null;
-      let activeCall = null;
-      let dataConnection = null;
+      let fallbackInterval = null;
+      let hiddenCanvas = null;
+      let hiddenCtx = null;
 
-      // 1. Initial 3-Second Loading Animation
+      // Google STUN + Public Free STUN/TURN Clusters to guarantee connectivity
+      const peerConfig = {
+        config: {
+          iceServers: [
+            { urls: "stun:stun.l.google.com:19302" },
+            { urls: "stun:stun1.l.google.com:19302" },
+            { urls: "stun:stun2.l.google.com:19302" },
+            { urls: "stun:stun3.l.google.com:19302" },
+            { urls: "stun:stun4.l.google.com:19302" },
+            { urls: "stun:global.stun.twilio.com:3478" },
+          ],
+          sdpSemantics: "unified-plan",
+        },
+      };
+
+      // 1. Initial 3-Second Loading Splash
       window.addEventListener("load", () => {
         setTimeout(() => {
           const splash = document.getElementById("splash-screen");
           splash.style.opacity = "0";
           setTimeout(() => {
             splash.style.display = "none";
-            initApplication();
+            bootstrapEngine();
           }, 600);
         }, 3000);
       });
 
-      function initApplication() {
+      function bootstrapEngine() {
         const params = new URLSearchParams(window.location.search);
         const roomKey = params.get("room");
-        const initialFrame = params.get("frame") || "auto";
 
         if (roomKey) {
-          document.getElementById("senderView").classList.add("d-none");
-          document.getElementById("receiverView").classList.remove("d-none");
-          initReceiver(roomKey, initialFrame);
+          // RECEIVER MODE
+          document.getElementById("senderSection").classList.add("d-none");
+          document.getElementById("receiverSection").classList.remove("d-none");
+          setupReceiver(roomKey);
         } else {
-          initSender();
+          // SENDER MODE
+          setupSender();
         }
       }
 
       // ==========================================
-      // SENDER (HOST)
+      // SENDER (HOST) SETUP
       // ==========================================
-      function initSender() {
-        peer = new Peer();
+      function setupSender() {
+        peer = new Peer(peerConfig);
 
         peer.on("open", (id) => {
           document.getElementById("startBtn").disabled = false;
@@ -620,65 +540,49 @@
           status.className =
             "badge bg-dark border border-secondary text-success px-3 py-2";
           status.innerHTML =
-            '<i class="fa-solid fa-circle-check me-1"></i> Engine Ready to Cast';
+            '<i class="fa-solid fa-circle-check me-1"></i> Core Ready to Cast';
 
-          // Listen for viewer stream calls
+          // 1. WebRTC Stream Handling
           peer.on("call", (call) => {
             if (localStream) {
               call.answer(localStream);
             }
           });
 
-          // Listen for viewer data channel (chat)
+          // 2. Data Channel Fallback (Canvas Frame Sync)
           peer.on("connection", (conn) => {
-            dataConnection = conn;
-            setupChatListener();
+            conn.on("open", () => {
+              startCanvasRelay(conn);
+            });
           });
         });
+
+        peer.on("error", (err) => console.error("PeerJS Error:", err));
       }
 
-      async function startCast() {
-        const quality = document.getElementById("qualitySelect").value;
-        const deviceProfile = document.getElementById("deviceTypeSelect").value;
-
-        // Dynamic Video Constraints based on preset
-        let videoConstraints = { cursor: "always" };
-        if (quality === "4k") {
-          videoConstraints.width = { ideal: 3840 };
-          videoConstraints.height = { ideal: 2160 };
-          videoConstraints.frameRate = { ideal: 30 };
-        } else if (quality === "1080p") {
-          videoConstraints.width = { ideal: 1920 };
-          videoConstraints.height = { ideal: 1080 };
-          videoConstraints.frameRate = { ideal: 60 };
-        } else if (quality === "720p") {
-          videoConstraints.width = { ideal: 1280 };
-          videoConstraints.height = { ideal: 720 };
-          videoConstraints.frameRate = { ideal: 60 };
-        } else if (quality === "mobile") {
-          videoConstraints.width = { ideal: 854 };
-          videoConstraints.height = { ideal: 480 };
-          videoConstraints.frameRate = { ideal: 30 };
-        }
-
+      async function startScreenCast() {
         try {
-          // Universal Display Media (Supports Mobile Chrome, Desktop, Tablet, etc.)
+          // Capture Screen
           if (
             navigator.mediaDevices &&
             navigator.mediaDevices.getDisplayMedia
           ) {
             localStream = await navigator.mediaDevices.getDisplayMedia({
-              video: videoConstraints,
+              video: {
+                cursor: "always",
+                displaySurface: "monitor",
+                frameRate: { ideal: 30, max: 60 },
+              },
               audio: false,
             });
           } else {
-            // Fallback for mobile devices lacking standard getDisplayMedia
+            // Mobile Safari fallback
             localStream = await navigator.mediaDevices.getUserMedia({
               video: { facingMode: "environment" },
             });
           }
 
-          const shareUrl = `${window.location.origin}${window.location.pathname}?room=${peer.id}&frame=${deviceProfile}`;
+          const shareUrl = `${window.location.origin}${window.location.pathname}?room=${peer.id}`;
           document.getElementById("shareUrl").value = shareUrl;
 
           // Render QR Code
@@ -692,29 +596,60 @@
           document.getElementById("initCard").classList.add("d-none");
           document.getElementById("activeCard").classList.remove("d-none");
 
-          localStream.getVideoTracks()[0].onended = () => stopCast();
+          localStream.getVideoTracks()[0].onended = () => stopScreenCast();
         } catch (err) {
-          alert(
-            "Screen capture was not approved or is unsupported on this browser version.",
-          );
+          alert("Screen capture was denied or cancelled.");
           console.error(err);
         }
       }
 
-      function stopCast() {
+      function startCanvasRelay(conn) {
+        if (!localStream) return;
+
+        const video = document.createElement("video");
+        video.srcObject = localStream;
+        video.play();
+
+        hiddenCanvas = document.createElement("canvas");
+        hiddenCtx = hiddenCanvas.getContext("2d");
+
+        if (fallbackInterval) clearInterval(fallbackInterval);
+
+        // Relays compressed screen frames over data channel if WebRTC video is blocked
+        fallbackInterval = setInterval(() => {
+          if (!video.videoWidth) return;
+          hiddenCanvas.width = video.videoWidth * 0.5;
+          hiddenCanvas.height = video.videoHeight * 0.5;
+          hiddenCtx.drawImage(
+            video,
+            0,
+            0,
+            hiddenCanvas.width,
+            hiddenCanvas.height,
+          );
+          const frameData = hiddenCanvas.toDataURL("image/webp", 0.4);
+          if (conn.open) {
+            conn.send({ type: "frame", data: frameData });
+          }
+        }, 100);
+      }
+
+      function stopScreenCast() {
         if (localStream) {
           localStream.getTracks().forEach((t) => t.stop());
           localStream = null;
         }
+        if (fallbackInterval) clearInterval(fallbackInterval);
+
         document.getElementById("initCard").classList.remove("d-none");
         document.getElementById("activeCard").classList.add("d-none");
       }
 
       // ==========================================
-      // RECEIVER (VIEWER)
+      // RECEIVER (VIEWER) SETUP
       // ==========================================
-      function initReceiver(hostId, preferredFrame) {
-        peer = new Peer();
+      function setupReceiver(hostId) {
+        peer = new Peer(peerConfig);
 
         peer.on("open", () => {
           const status = document.getElementById("connStatus");
@@ -723,98 +658,110 @@
           status.innerHTML =
             '<i class="fa-solid fa-tower-broadcast me-1"></i> Connected to Host';
 
-          // Connect data connection for chat
-          dataConnection = peer.connect(hostId);
-          setupChatListener();
+          connectToHost(hostId);
+        });
 
-          // Connect media stream with dummy track
-          const dummyCanvas = document.createElement("canvas");
-          dummyCanvas.width = 1;
-          dummyCanvas.height = 1;
-          const dummyStream = dummyCanvas.captureStream();
-
-          activeCall = peer.call(hostId, dummyStream);
-
-          activeCall.on("stream", (remoteStream) => {
-            const video = document.getElementById("receiverVideo");
-            document.getElementById("waitingMsg").classList.add("d-none");
-            video.srcObject = remoteStream;
-            video.play().catch((e) => console.log(e));
-
-            // Auto-detect resolution & adjust frame
-            video.onloadedmetadata = () => {
-              const width = video.videoWidth;
-              const height = video.videoHeight;
-              document.getElementById("resolutionBadge").innerText =
-                `${width}x${height}`;
-
-              if (preferredFrame === "auto") {
-                if (height > width) {
-                  setDeviceFrame("mobile");
-                } else if (width / height < 1.5) {
-                  setDeviceFrame("tablet");
-                } else {
-                  setDeviceFrame("desktop");
-                }
-              } else {
-                setDeviceFrame(preferredFrame);
-              }
-            };
-          });
-
-          activeCall.on("close", () => {
-            document.getElementById("waitingMsg").classList.remove("d-none");
-            document.getElementById("waitingMsg").innerHTML = `
-            <i class="fa-solid fa-circle-xmark text-danger fs-1 mb-2"></i>
-            <p>The host ended the casting session.</p>
-          `;
-          });
+        peer.on("error", () => {
+          document.getElementById("waitingMsg").innerHTML = `
+          <i class="fa-solid fa-circle-xmark text-danger fs-1 mb-2"></i>
+          <p>Host is offline or room expired.</p>
+        `;
         });
       }
 
-      // Dynamic Device Frame Switcher
-      function setDeviceFrame(type) {
-        const frame = document.getElementById("activeDeviceFrame");
-        const notch = document.getElementById("notchElem");
+      function connectToHost(hostId) {
+        const video = document.getElementById("remoteVideo");
+        const canvas = document.getElementById("fallbackCanvas");
+        const ctx = canvas.getContext("2d");
+        const waitMsg = document.getElementById("waitingMsg");
+
+        // 1. Initiate WebRTC Video Stream
+        const dummyCanvas = document.createElement("canvas");
+        dummyCanvas.width = 1;
+        dummyCanvas.height = 1;
+        const dummyStream = dummyCanvas.captureStream();
+
+        const call = peer.call(hostId, dummyStream);
+
+        call.on("stream", (remoteStream) => {
+          waitMsg.classList.add("d-none");
+          video.classList.remove("d-none");
+          video.srcObject = remoteStream;
+
+          // Critical for Mobile Safari & Android Chrome autoplay
+          video.muted = true;
+          video.setAttribute("playsinline", "true");
+          video.play().catch((e) => console.log("Autoplay policy handled:", e));
+
+          video.onloadedmetadata = () => {
+            const w = video.videoWidth;
+            const h = video.videoHeight;
+            document.getElementById("resolutionBadge").innerText = `${w}x${h}`;
+
+            // Auto-Switch Frame Based on Orientation
+            if (h > w) {
+              setFrameType("phone");
+            } else if (w / h < 1.5) {
+              setFrameType("tablet");
+            } else {
+              setFrameType("desktop");
+            }
+          };
+        });
+
+        // 2. Data Channel Fallback (For Strict Firewalls / Cellular Networks)
+        const conn = peer.connect(hostId);
+        conn.on("data", (payload) => {
+          if (payload.type === "frame" && video.classList.contains("d-none")) {
+            waitMsg.classList.add("d-none");
+            canvas.classList.remove("d-none");
+            const img = new Image();
+            img.onload = () => {
+              canvas.width = img.width;
+              canvas.height = img.height;
+              ctx.drawImage(img, 0, 0);
+            };
+            img.src = payload.data;
+          }
+        });
+      }
+
+      // Switch between Phone, Tablet, Desktop, and TV Frames
+      function setFrameType(type) {
+        const frame = document.getElementById("activeFrame");
+        const notch = document.getElementById("phoneNotch");
 
         frame.className = `frame-${type}`;
-        if (type === "mobile") {
+        if (type === "phone") {
           notch.classList.remove("d-none");
         } else {
           notch.classList.add("d-none");
         }
       }
 
-      // Screenshot Tool
-      function captureScreenshot() {
-        const video = document.getElementById("receiverVideo");
-        if (!video.videoWidth) return;
+      // Capture Snapshot
+      function captureSnapshot() {
+        const video = document.getElementById("remoteVideo");
+        const canvas = document.getElementById("fallbackCanvas");
+        const target = !video.classList.contains("d-none") ? video : canvas;
 
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        if (!target) return;
 
-        const link = document.createElement("a");
-        link.download = `castflow-capture-${Date.now()}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
+        const snapCanvas = document.createElement("canvas");
+        snapCanvas.width = target.videoWidth || target.width;
+        snapCanvas.height = target.videoHeight || target.height;
+        const ctx = snapCanvas.getContext("2d");
+        ctx.drawImage(target, 0, 0, snapCanvas.width, snapCanvas.height);
+
+        const a = document.createElement("a");
+        a.download = `omnicast-snapshot-${Date.now()}.png`;
+        a.href = snapCanvas.toDataURL("image/png");
+        a.click();
       }
 
-      // Picture-in-Picture
-      async function togglePiP() {
-        const video = document.getElementById("receiverVideo");
-        if (document.pictureInPictureElement) {
-          await document.exitPictureInPicture();
-        } else if (video.requestPictureInPicture) {
-          await video.requestPictureInPicture();
-        }
-      }
-
-      // Fullscreen
+      // Fullscreen Toggle
       function toggleFullScreen() {
-        const frame = document.getElementById("activeDeviceFrame");
+        const frame = document.getElementById("activeFrame");
         if (!document.fullscreenElement) {
           if (frame.requestFullscreen) frame.requestFullscreen();
         } else {
@@ -822,43 +769,11 @@
         }
       }
 
-      // Chat System
-      function toggleChat() {
-        const chatCard = document.getElementById("liveChatCard");
-        chatCard.classList.toggle("d-none");
-      }
-
-      function setupChatListener() {
-        if (!dataConnection) return;
-        dataConnection.on("data", (msg) => {
-          renderChatMessage(msg, "in");
-        });
-      }
-
-      function sendChatMessage() {
-        const input = document.getElementById("chatInput");
-        const msg = input.value.trim();
-        if (!msg || !dataConnection) return;
-
-        dataConnection.send(msg);
-        renderChatMessage(msg, "out");
-        input.value = "";
-      }
-
-      function renderChatMessage(text, direction) {
-        const box = document.getElementById("chatMessages");
-        const div = document.createElement("div");
-        div.className = `chat-msg chat-${direction}`;
-        div.innerText = text;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
-      }
-
       function copyLink() {
-        const copyText = document.getElementById("shareUrl");
-        copyText.select();
-        navigator.clipboard.writeText(copyText.value);
-        alert("Mirroring Link copied to clipboard!");
+        const input = document.getElementById("shareUrl");
+        input.select();
+        navigator.clipboard.writeText(input.value);
+        alert("Mirror Link copied to clipboard!");
       }
     </script>
   </body>
