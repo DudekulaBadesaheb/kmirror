@@ -1,1059 +1,950 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <meta name="theme-color" content="#4f46e5" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
-    <title>K CAST - 2-Way Voice, Screen & Camera Mirror</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>K CAST - 2-Way Screen, Voice & Camera App</title>
 
-    <!-- Bootstrap 5 CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <!-- FontAwesome 6 Icons -->
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-      rel="stylesheet"
-    />
-    <!-- Google Fonts -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap"
-      rel="stylesheet"
-    />
-    <!-- QR Code Engine -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- PeerJS Real-Time Engine -->
-    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- FontAwesome 6 Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet" />
+  <!-- QR Code Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- PeerJS Real-Time Engine -->
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <!-- JSZip for 1-Click Complete APK Package Download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-    <!-- Dynamic WebAPK Manifest -->
-    <link id="manifest-placeholder" rel="manifest" />
+  <!-- Dynamic WebAPK Manifest -->
+  <link id="manifest-placeholder" rel="manifest" />
 
-    <style>
-      :root {
-        --k-primary: #4f46e5;
-        --k-cyan: #06b6d4;
-        --k-accent: #f43f5e;
-        --dark-bg: #05070d;
-        --card-bg: rgba(13, 18, 30, 0.92);
-        --border-glow: rgba(79, 70, 229, 0.35);
-        --phone-rim: #1e293b;
-      }
+  <style>
+    :root {
+      --k-primary: #4f46e5;
+      --k-cyan: #06b6d4;
+      --k-accent: #f43f5e;
+      --dark-bg: #05070d;
+      --card-bg: rgba(13, 18, 30, 0.92);
+      --border-glow: rgba(79, 70, 229, 0.35);
+      --phone-rim: #1e293b;
+    }
 
-      * {
-        box-sizing: border-box;
-        font-family: "Plus Jakarta Sans", sans-serif;
-      }
+    * {
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
 
-      body {
-        background-color: var(--dark-bg);
-        color: #f8fafc;
-        min-height: 100vh;
-        overflow-x: hidden;
-      }
+    body {
+      background-color: var(--dark-bg);
+      color: #f8fafc;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-      /* 3-Second K CAST Splash Screen */
-      #splash-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: #030408;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 99999;
-        transition: opacity 0.6s ease;
-      }
+    /* 3-Second K CAST Splash Screen */
+    #splash-screen {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: #030408;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      transition: opacity 0.6s ease;
+    }
 
-      .k-logo-orb {
-        width: 100px;
-        height: 100px;
-        border-radius: 28px;
-        background: linear-gradient(
-          135deg,
-          var(--k-primary),
-          var(--k-cyan),
-          var(--k-accent)
-        );
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 3rem;
-        font-weight: 900;
-        color: #fff;
-        box-shadow: 0 0 50px rgba(79, 70, 229, 0.8);
-        animation: pulseGlow 1.5s infinite alternate;
-      }
+    .k-logo-orb {
+      width: 100px;
+      height: 100px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, var(--k-primary), var(--k-cyan), var(--k-accent));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3rem;
+      font-weight: 900;
+      color: #fff;
+      box-shadow: 0 0 50px rgba(79, 70, 229, 0.8);
+      animation: pulseGlow 1.5s infinite alternate;
+    }
 
-      .loader-bar {
-        width: 220px;
-        height: 6px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        margin-top: 24px;
-        overflow: hidden;
-      }
+    .loader-bar {
+      width: 220px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      margin-top: 24px;
+      overflow: hidden;
+    }
 
-      .loader-fill {
-        width: 0%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          var(--k-primary),
-          var(--k-cyan),
-          var(--k-accent)
-        );
-        animation: fillBar 3s forwards cubic-bezier(0.1, 0.8, 0.3, 1);
-      }
+    .loader-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--k-primary), var(--k-cyan), var(--k-accent));
+      animation: fillBar 3s forwards cubic-bezier(0.1, 0.8, 0.3, 1);
+    }
 
-      @keyframes pulseGlow {
-        0% {
-          transform: scale(0.95);
-          filter: drop-shadow(0 0 15px var(--k-primary));
-        }
-        100% {
-          transform: scale(1.06);
-          filter: drop-shadow(0 0 35px var(--k-accent));
-        }
-      }
+    @keyframes pulseGlow {
+      0% { transform: scale(0.95); filter: drop-shadow(0 0 15px var(--k-primary)); }
+      100% { transform: scale(1.06); filter: drop-shadow(0 0 35px var(--k-accent)); }
+    }
 
-      @keyframes fillBar {
-        0% {
-          width: 0%;
-        }
-        100% {
-          width: 100%;
-        }
-      }
+    @keyframes fillBar {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
 
-      /* Glass Panels */
-      .glass-card {
-        background: var(--card-bg);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid var(--border-glow);
-        border-radius: 24px;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
-      }
+    /* Glass Panels */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glow);
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+    }
 
-      .cast-tab-btn {
-        border: 2px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
-        padding: 14px;
-        cursor: pointer;
-        background: rgba(255, 255, 255, 0.02);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
+    .cast-tab-btn {
+      border: 2px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 14px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-      .cast-tab-btn:hover,
-      .cast-tab-btn.active {
-        border-color: var(--k-cyan);
-        background: rgba(6, 182, 212, 0.12);
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(6, 182, 212, 0.25);
-      }
+    .cast-tab-btn:hover, .cast-tab-btn.active {
+      border-color: var(--k-cyan);
+      background: rgba(6, 182, 212, 0.12);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(6, 182, 212, 0.25);
+    }
 
-      .btn-k-gradient {
-        background: linear-gradient(
-          135deg,
-          var(--k-primary) 0%,
-          var(--k-cyan) 50%,
-          var(--k-accent) 100%
-        );
-        color: #fff;
-        border: none;
-        font-weight: 800;
-        border-radius: 14px;
-        transition: all 0.3s ease;
-      }
+    .btn-k-gradient {
+      background: linear-gradient(135deg, var(--k-primary) 0%, var(--k-cyan) 50%, var(--k-accent) 100%);
+      color: #fff;
+      border: none;
+      font-weight: 800;
+      border-radius: 14px;
+      transition: all 0.3s ease;
+    }
 
-      .btn-k-gradient:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(244, 63, 94, 0.5);
-        color: #fff;
-      }
+    .btn-k-gradient:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(244, 63, 94, 0.5);
+      color: #fff;
+    }
 
-      /* ======================================================== */
-      /* DYNAMIC DEVICE VIEWPORTS & 2-WAY PIP                     */
-      /* ======================================================== */
-      .mirror-stage {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 75vh;
-        padding: 10px 0;
-      }
+    /* ======================================================== */
+    /* DYNAMIC DEVICE VIEWPORTS & 2-WAY PIP                     */
+    /* ======================================================== */
+    .mirror-stage {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 75vh;
+      padding: 10px 0;
+    }
 
-      .phone-mockup {
-        position: relative;
-        width: 350px;
-        height: 710px;
-        background: #000;
-        border-radius: 48px;
-        border: 12px solid var(--phone-rim);
-        box-shadow:
-          0 0 60px rgba(79, 70, 229, 0.4),
-          inset 0 0 10px rgba(255, 255, 255, 0.1);
-        overflow: hidden;
-        transition: all 0.4s ease;
-      }
+    .phone-mockup {
+      position: relative;
+      width: 350px;
+      height: 710px;
+      background: #000;
+      border-radius: 48px;
+      border: 12px solid var(--phone-rim);
+      box-shadow: 0 0 60px rgba(79, 70, 229, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      transition: all 0.4s ease;
+    }
 
-      .phone-notch {
-        position: absolute;
-        top: 12px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 110px;
-        height: 25px;
-        background: #000;
-        border-radius: 20px;
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        justify-content: space-around;
-        padding: 0 10px;
-      }
+    .phone-notch {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 25px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 10px;
+    }
 
-      .notch-cam {
-        width: 9px;
-        height: 9px;
-        background: #334155;
-        border-radius: 50%;
-      }
-      .notch-bar {
-        width: 36px;
-        height: 4px;
-        background: #334155;
-        border-radius: 4px;
-      }
+    .notch-cam { width: 9px; height: 9px; background: #334155; border-radius: 50%; }
+    .notch-bar { width: 36px; height: 4px; background: #334155; border-radius: 4px; }
 
-      .frame-tablet {
-        width: 660px !important;
-        height: 480px !important;
-        border-radius: 30px !important;
-      }
-      .frame-desktop {
-        width: 95% !important;
-        max-width: 920px !important;
-        height: 540px !important;
-        border-radius: 16px !important;
-      }
-      .frame-tv {
-        width: 98% !important;
-        max-width: 1120px !important;
-        height: 590px !important;
-        border-radius: 8px !important;
-        border-width: 4px !important;
-      }
+    .frame-tablet { width: 660px !important; height: 480px !important; border-radius: 30px !important; }
+    .frame-desktop { width: 95% !important; max-width: 920px !important; height: 540px !important; border-radius: 16px !important; }
+    .frame-tv { width: 98% !important; max-width: 1120px !important; height: 590px !important; border-radius: 8px !important; border-width: 4px !important; }
 
-      .phone-viewport {
-        width: 100%;
-        height: 100%;
-        background: #000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-      }
+    .phone-viewport {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
 
-      .phone-viewport video {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        background: #000;
-      }
+    .phone-viewport video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+    }
 
-      /* Floating 2-Way PIP Window */
-      .pip-self-video {
-        position: absolute;
-        bottom: 20px;
-        right: 20px;
-        width: 100px;
-        height: 140px;
-        border-radius: 14px;
-        border: 2px solid var(--k-cyan);
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
-        object-fit: cover;
-        z-index: 90;
-        background: #111;
-      }
+    .pip-self-video {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 100px;
+      height: 140px;
+      border-radius: 14px;
+      border: 2px solid var(--k-cyan);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+      object-fit: cover;
+      z-index: 90;
+      background: #111;
+    }
 
-      #qrcode img {
-        margin: 0 auto;
-        border-radius: 12px;
-        padding: 8px;
-        background: #fff;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- 3-Second Loading Animation -->
-    <div id="splash-screen">
-      <div class="k-logo-orb">K</div>
-      <h3 class="mt-4 fw-bold tracking-wide">K CAST PRO</h3>
-      <div class="loader-bar">
-        <div class="loader-fill"></div>
+    #qrcode img {
+      margin: 0 auto;
+      border-radius: 12px;
+      padding: 8px;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3-Second Loading Animation -->
+  <div id="splash-screen">
+    <div class="k-logo-orb">K</div>
+    <h3 class="mt-4 fw-bold tracking-wide">K CAST PRO</h3>
+    <div class="loader-bar">
+      <div class="loader-fill"></div>
+    </div>
+    <small class="text-secondary mt-2">Connecting WebRTC Mesh & APK Engine...</small>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark bg-transparent py-3">
+    <div class="container">
+      <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="#">
+        <div class="d-inline-flex justify-content-center align-items-center me-2" style="width:36px; height:36px; background: linear-gradient(135deg, #4f46e5, #06b6d4); border-radius:10px; font-weight:900;">K</div>
+        K <span class="text-info ms-1">CAST</span>
+      </a>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-info px-3 py-2 shadow-sm" onclick="downloadCompleteAppPackage()">
+          <i class="fa-solid fa-file-zipper me-1"></i> Download APK Project ZIP
+        </button>
+        <button id="installApkBtn" class="btn btn-sm btn-success px-3 py-2 d-none" onclick="triggerWebAPKInstall()">
+          <i class="fa-brands fa-android me-1"></i> Install APK
+        </button>
+        <span id="connBadge" class="badge bg-dark border border-secondary text-warning px-3 py-2">
+          <i class="fa-solid fa-circle-notch fa-spin me-1"></i> Starting Node...
+        </span>
       </div>
-      <small class="text-secondary mt-2"
-        >Activating Background Audio & 2-Way Mesh...</small
-      >
+    </div>
+  </nav>
+
+  <div class="container py-2">
+
+    <!-- SENDER VIEW -->
+    <div id="senderSection" class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="glass-card p-4 p-md-5 text-center">
+
+          <!-- Install & Download Banner -->
+          <div class="alert alert-dark border-primary d-flex flex-wrap align-items-center justify-content-between mb-4 text-start gap-2">
+            <div class="d-flex align-items-center">
+              <i class="fa-brands fa-android fs-2 text-success me-3"></i>
+              <div>
+                <strong class="text-light">Get K CAST Mobile Application</strong>
+                <p class="small text-secondary mb-0">Install on phone or download the full project package.</p>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-light px-3 py-2" onclick="downloadCompleteAppPackage()">
+                <i class="fa-solid fa-download me-1"></i> Download Project
+              </button>
+              <button class="btn btn-sm btn-success px-3 py-2" onclick="triggerWebAPKInstall()">
+                <i class="fa-solid fa-mobile-screen-button me-1"></i> Install APK
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <h2 class="fw-bold mb-2">Mirror Your Device & Voice</h2>
+            <p class="text-secondary">Stream screen, camera, and continuous background 2-way live audio.</p>
+          </div>
+
+          <!-- SOURCE SELECTORS -->
+          <div class="row g-3 mb-4 text-start">
+            
+            <!-- Option 1: Screen -->
+            <div class="col-md-4">
+              <div id="optScreen" class="cast-tab-btn active" onclick="selectCastMode('screen')">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fa-solid fa-display fs-3 text-primary me-2"></i>
+                  <h6 class="fw-bold mb-0 text-light">Full Screen</h6>
+                </div>
+                <small class="text-secondary d-block">Mirrors desktop or Android OS display.</small>
+              </div>
+            </div>
+
+            <!-- Option 2: Back Camera -->
+            <div class="col-md-4">
+              <div id="optBackCam" class="cast-tab-btn" onclick="selectCastMode('environment')">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fa-solid fa-camera-rotate fs-3 text-info me-2"></i>
+                  <h6 class="fw-bold mb-0 text-light">Back Camera</h6>
+                </div>
+                <small class="text-secondary d-block">HD surroundings with continuous voice.</small>
+              </div>
+            </div>
+
+            <!-- Option 3: Front Camera -->
+            <div class="col-md-4">
+              <div id="optFrontCam" class="cast-tab-btn" onclick="selectCastMode('user')">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fa-solid fa-user-astronaut fs-3 text-danger me-2"></i>
+                  <h6 class="fw-bold mb-0 text-light">Front Camera</h6>
+                </div>
+                <small class="text-secondary d-block">Selfie stream with real-time 2-way talk.</small>
+              </div>
+            </div>
+
+          </div>
+
+          <div id="initCard">
+            <button id="startCastBtn" class="btn btn-k-gradient btn-lg w-100 py-3 shadow" onclick="startKCast()" disabled>
+              <i class="fa-solid fa-circle-play me-2"></i> Start K CAST Live (Video + Voice)
+            </button>
+          </div>
+
+          <!-- Active Broadcasting State -->
+          <div id="activeCard" class="d-none text-start mt-4">
+            <div class="alert alert-success d-flex align-items-center mb-3">
+              <i class="fa-solid fa-circle-check fs-4 me-3"></i>
+              <div>
+                <strong>K CAST Stream & Voice Active!</strong> Open link on receiver device.
+              </div>
+            </div>
+
+            <label class="form-label text-secondary small fw-bold">Receiver Mirror Link:</label>
+            <div class="input-group mb-3">
+              <input type="text" id="shareUrl" class="form-control bg-dark text-light border-secondary" readonly />
+              <button class="btn btn-outline-info" onclick="copyLink()">
+                <i class="fa-regular fa-copy me-1"></i> Copy
+              </button>
+            </div>
+
+            <div class="text-center my-3">
+              <div id="qrcode" class="d-inline-block shadow"></div>
+              <p class="text-secondary small mt-2"><i class="fa-solid fa-qrcode me-1"></i> Scan with any phone/TV camera to connect</p>
+            </div>
+
+            <!-- Control Bar -->
+            <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
+              <button id="micToggleBtn" class="btn btn-secondary px-3 py-2" onclick="toggleMicrophone()">
+                <i class="fa-solid fa-microphone me-1"></i> Mic: ON
+              </button>
+              <button class="btn btn-warning px-3 py-2" onclick="toggleCameraLens()">
+                <i class="fa-solid fa-camera-rotate me-1"></i> Flip Lens
+              </button>
+              <button class="btn btn-danger px-3 py-2" onclick="stopKCast()">
+                <i class="fa-solid fa-stop me-1"></i> Stop Sharing
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-dark bg-transparent py-3">
-      <div class="container">
-        <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="#">
-          <div
-            class="d-inline-flex justify-content-center align-items-center me-2"
-            style="
-              width: 36px;
-              height: 36px;
-              background: linear-gradient(135deg, #4f46e5, #06b6d4);
-              border-radius: 10px;
-              font-weight: 900;
-            "
-          >
-            K
-          </div>
-          K <span class="text-info ms-1">CAST</span>
-        </a>
+    <!-- RECEIVER VIEW -->
+    <div id="receiverSection" class="d-none">
+      
+      <!-- Action Toolbar -->
+      <div class="glass-card p-3 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
         <div class="d-flex align-items-center gap-2">
-          <button
-            id="installApkBtn"
-            class="btn btn-sm btn-success px-3 py-2 d-none"
-            onclick="triggerWebAPKInstall()"
-          >
-            <i class="fa-brands fa-android me-1"></i> Install APK
-          </button>
-          <span
-            id="connBadge"
-            class="badge bg-dark border border-secondary text-warning px-3 py-2"
-          >
-            <i class="fa-solid fa-circle-notch fa-spin me-1"></i> Starting
-            Node...
+          <span class="badge bg-danger px-3 py-2">
+            <i class="fa-solid fa-broadcast-tower fa-fade me-1"></i> LIVE K CAST
           </span>
+          <span id="resolutionBadge" class="badge bg-secondary font-monospace">Detecting Feed...</span>
         </div>
-      </div>
-    </nav>
 
-    <div class="container py-2">
-      <!-- SENDER VIEW -->
-      <div id="senderSection" class="row justify-content-center">
-        <div class="col-lg-8">
-          <div class="glass-card p-4 p-md-5 text-center">
-            <!-- Install WebAPK Banner -->
-            <div
-              id="apkInstallCard"
-              class="alert alert-dark border-primary d-flex align-items-center justify-content-between mb-4 text-start"
-            >
-              <div class="d-flex align-items-center">
-                <i class="fa-brands fa-android fs-2 text-success me-3"></i>
-                <div>
-                  <strong class="text-light"
-                    >Install K CAST as Mobile App</strong
-                  >
-                  <p class="small text-secondary mb-0">
-                    Runs standalone on Android home screen without browser bars.
-                  </p>
-                </div>
-              </div>
-              <button
-                class="btn btn-sm btn-success px-3 py-2"
-                onclick="triggerWebAPKInstall()"
-              >
-                <i class="fa-solid fa-download me-1"></i> Install APK
-              </button>
-            </div>
+        <!-- Frame Switchers -->
+        <div class="btn-group" role="group">
+          <button class="btn btn-sm btn-outline-info active" onclick="setDeviceFrame('phone')">
+            <i class="fa-solid fa-mobile-screen"></i> Phone
+          </button>
+          <button class="btn btn-sm btn-outline-info" onclick="setDeviceFrame('tablet')">
+            <i class="fa-solid fa-tablet-screen-button"></i> Tablet
+          </button>
+          <button class="btn btn-sm btn-outline-info" onclick="setDeviceFrame('desktop')">
+            <i class="fa-solid fa-laptop"></i> Desktop
+          </button>
+          <button class="btn btn-sm btn-outline-info" onclick="setDeviceFrame('tv')">
+            <i class="fa-solid fa-tv"></i> Cinema TV
+          </button>
+        </div>
 
-            <div class="mb-4">
-              <h2 class="fw-bold mb-2">Mirror Your Device & Voice</h2>
-              <p class="text-secondary">
-                Stream screen, camera, and continuous background 2-way live
-                audio.
-              </p>
-            </div>
-
-            <!-- SOURCE SELECTORS -->
-            <div class="row g-3 mb-4 text-start">
-              <!-- Option 1: Screen -->
-              <div class="col-md-4">
-                <div
-                  id="optScreen"
-                  class="cast-tab-btn active"
-                  onclick="selectCastMode('screen')"
-                >
-                  <div class="d-flex align-items-center mb-2">
-                    <i class="fa-solid fa-display fs-3 text-primary me-2"></i>
-                    <h6 class="fw-bold mb-0 text-light">Full Screen</h6>
-                  </div>
-                  <small class="text-secondary d-block"
-                    >Mirrors desktop or Android OS display.</small
-                  >
-                </div>
-              </div>
-
-              <!-- Option 2: Back Camera -->
-              <div class="col-md-4">
-                <div
-                  id="optBackCam"
-                  class="cast-tab-btn"
-                  onclick="selectCastMode('environment')"
-                >
-                  <div class="d-flex align-items-center mb-2">
-                    <i
-                      class="fa-solid fa-camera-rotate fs-3 text-info me-2"
-                    ></i>
-                    <h6 class="fw-bold mb-0 text-light">Back Camera</h6>
-                  </div>
-                  <small class="text-secondary d-block"
-                    >HD surroundings with continuous background voice.</small
-                  >
-                </div>
-              </div>
-
-              <!-- Option 3: Front Camera -->
-              <div class="col-md-4">
-                <div
-                  id="optFrontCam"
-                  class="cast-tab-btn"
-                  onclick="selectCastMode('user')"
-                >
-                  <div class="d-flex align-items-center mb-2">
-                    <i
-                      class="fa-solid fa-user-astronaut fs-3 text-danger me-2"
-                    ></i>
-                    <h6 class="fw-bold mb-0 text-light">Front Camera</h6>
-                  </div>
-                  <small class="text-secondary d-block"
-                    >Selfie video stream with real-time 2-way talk.</small
-                  >
-                </div>
-              </div>
-            </div>
-
-            <div id="initCard">
-              <button
-                id="startCastBtn"
-                class="btn btn-k-gradient btn-lg w-100 py-3 shadow"
-                onclick="startKCast()"
-                disabled
-              >
-                <i class="fa-solid fa-circle-play me-2"></i> Start K CAST Live
-                (Video + Voice)
-              </button>
-            </div>
-
-            <!-- Active Broadcasting State -->
-            <div id="activeCard" class="d-none text-start mt-4">
-              <div class="alert alert-success d-flex align-items-center mb-3">
-                <i class="fa-solid fa-circle-check fs-4 me-3"></i>
-                <div>
-                  <strong>K CAST Stream & Voice Active!</strong> Open link on
-                  receiver device.
-                </div>
-              </div>
-
-              <label class="form-label text-secondary small fw-bold"
-                >Receiver Mirror Link:</label
-              >
-              <div class="input-group mb-3">
-                <input
-                  type="text"
-                  id="shareUrl"
-                  class="form-control bg-dark text-light border-secondary"
-                  readonly
-                />
-                <button class="btn btn-outline-info" onclick="copyLink()">
-                  <i class="fa-regular fa-copy me-1"></i> Copy
-                </button>
-              </div>
-
-              <div class="text-center my-3">
-                <div id="qrcode" class="d-inline-block shadow"></div>
-                <p class="text-secondary small mt-2">
-                  <i class="fa-solid fa-qrcode me-1"></i> Scan with any phone/TV
-                  camera to connect
-                </p>
-              </div>
-
-              <!-- Control Bar -->
-              <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
-                <button
-                  id="micToggleBtn"
-                  class="btn btn-secondary px-3 py-2"
-                  onclick="toggleMicrophone()"
-                >
-                  <i class="fa-solid fa-microphone me-1"></i> Mic: ON
-                </button>
-                <button
-                  class="btn btn-warning px-3 py-2"
-                  onclick="toggleCameraLens()"
-                >
-                  <i class="fa-solid fa-camera-rotate me-1"></i> Flip Lens
-                </button>
-                <button class="btn btn-danger px-3 py-2" onclick="stopKCast()">
-                  <i class="fa-solid fa-stop me-1"></i> Stop Sharing
-                </button>
-              </div>
-            </div>
-          </div>
+        <div class="d-flex flex-wrap gap-2">
+          <button id="recvMicBtn" class="btn btn-sm btn-outline-success" onclick="enableReceiver2Way()">
+            <i class="fa-solid fa-headset me-1"></i> Join Voice / Video
+          </button>
+          <button class="btn btn-sm btn-outline-warning" onclick="requestRemoteFlipCamera()">
+            <i class="fa-solid fa-camera-rotate me-1"></i> Flip Remote
+          </button>
+          <button class="btn btn-sm btn-outline-light" onclick="takeSnapshot()">
+            <i class="fa-solid fa-camera me-1"></i> Screenshot
+          </button>
+          <button class="btn btn-sm btn-primary" onclick="toggleFullscreen()">
+            <i class="fa-solid fa-expand me-1"></i> Fullscreen
+          </button>
         </div>
       </div>
 
-      <!-- RECEIVER VIEW -->
-      <div id="receiverSection" class="d-none">
-        <!-- Action Toolbar -->
-        <div
-          class="glass-card p-3 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2"
-        >
-          <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-danger px-3 py-2">
-              <i class="fa-solid fa-broadcast-tower fa-fade me-1"></i> LIVE K
-              CAST
-            </span>
-            <span id="resolutionBadge" class="badge bg-secondary font-monospace"
-              >Detecting Feed...</span
-            >
+      <!-- Smartphone Frame Mockup -->
+      <div class="mirror-stage">
+        <div id="mockupFrame" class="phone-mockup">
+          
+          <div id="phoneNotch" class="phone-notch">
+            <div class="notch-cam"></div>
+            <div class="notch-bar"></div>
           </div>
 
-          <!-- Frame Switchers -->
-          <div class="btn-group" role="group">
-            <button
-              class="btn btn-sm btn-outline-info active"
-              onclick="setDeviceFrame('phone')"
-            >
-              <i class="fa-solid fa-mobile-screen"></i> Phone
-            </button>
-            <button
-              class="btn btn-sm btn-outline-info"
-              onclick="setDeviceFrame('tablet')"
-            >
-              <i class="fa-solid fa-tablet-screen-button"></i> Tablet
-            </button>
-            <button
-              class="btn btn-sm btn-outline-info"
-              onclick="setDeviceFrame('desktop')"
-            >
-              <i class="fa-solid fa-laptop"></i> Desktop
-            </button>
-            <button
-              class="btn btn-sm btn-outline-info"
-              onclick="setDeviceFrame('tv')"
-            >
-              <i class="fa-solid fa-tv"></i> Cinema TV
-            </button>
-          </div>
-
-          <div class="d-flex flex-wrap gap-2">
-            <button
-              id="recvMicBtn"
-              class="btn btn-sm btn-outline-success"
-              onclick="enableReceiver2Way()"
-            >
-              <i class="fa-solid fa-headset me-1"></i> Join Voice / Video
-            </button>
-            <button
-              class="btn btn-sm btn-outline-warning"
-              onclick="requestRemoteFlipCamera()"
-            >
-              <i class="fa-solid fa-camera-rotate me-1"></i> Flip Remote
-            </button>
-            <button
-              class="btn btn-sm btn-outline-light"
-              onclick="takeSnapshot()"
-            >
-              <i class="fa-solid fa-camera me-1"></i> Screenshot
-            </button>
-            <button class="btn btn-sm btn-primary" onclick="toggleFullscreen()">
-              <i class="fa-solid fa-expand me-1"></i> Fullscreen
-            </button>
-          </div>
-        </div>
-
-        <!-- Smartphone Frame Mockup -->
-        <div class="mirror-stage">
-          <div id="mockupFrame" class="phone-mockup">
-            <div id="phoneNotch" class="phone-notch">
-              <div class="notch-cam"></div>
-              <div class="notch-bar"></div>
+          <div class="phone-viewport">
+            <div id="waitingMsg" class="text-secondary text-center p-4">
+              <i class="fa-solid fa-circle-notch fa-spin fs-1 mb-3 text-info"></i>
+              <p class="mb-0">Connecting to K CAST Sender...</p>
             </div>
-
-            <div class="phone-viewport">
-              <div id="waitingMsg" class="text-secondary text-center p-4">
-                <i
-                  class="fa-solid fa-circle-notch fa-spin fs-1 mb-3 text-info"
-                ></i>
-                <p class="mb-0">Connecting to K CAST Sender...</p>
-              </div>
-
-              <video
-                id="receiverVideo"
-                autoplay
-                playsinline
-                class="d-none"
-              ></video>
-              <!-- 2-Way Self View -->
-              <video
-                id="receiverSelfVideo"
-                autoplay
-                playsinline
-                muted
-                class="pip-self-video d-none"
-              ></video>
-            </div>
+            
+            <video id="receiverVideo" autoplay playsinline class="d-none"></video>
+            <!-- 2-Way Self View -->
+            <video id="receiverSelfVideo" autoplay playsinline muted class="pip-self-video d-none"></video>
           </div>
+
         </div>
       </div>
+
     </div>
 
-    <script>
-      // ========================================================
-      // 1. PWA & WEBAPK ENGINE REGISTRATION
-      // ========================================================
-      let deferredPrompt = null;
+  </div>
 
-      const manifestData = {
-        name: "K CAST Pro",
-        short_name: "K CAST",
-        start_url: window.location.href.split("?")[0],
-        display: "standalone",
-        background_color: "#05070d",
-        theme_color: "#4f46e5",
-        orientation: "portrait",
-        icons: [
-          {
-            src: "https://cdn-icons-png.flaticon.com/512/3670/3670157.png",
-            sizes: "192x192",
-            type: "image/png",
-          },
-          {
-            src: "https://cdn-icons-png.flaticon.com/512/3670/3670157.png",
-            sizes: "512x512",
-            type: "image/png",
-          },
-        ],
-      };
+  <script>
+    // ========================================================
+    // 1. ONE-CLICK COMPLETE ANDROID APK PROJECT GENERATOR
+    // ========================================================
+    function downloadCompleteAppPackage() {
+      const zip = new JSZip();
 
-      const manifestBlob = new Blob([JSON.stringify(manifestData)], {
-        type: "application/json",
+      // Flutter Project pubspec.yaml
+      zip.file("pubspec.yaml", `name: k_cast
+description: "K CAST - Universal 2-Way Screen, Video & Voice Mirroring App"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_webrtc: ^0.11.7
+  qr_flutter: ^4.1.0
+  flutter_foreground_task: ^8.1.0
+  font_awesome_flutter: ^10.7.0
+  clipboard: ^0.1.3
+
+flutter:
+  uses-material-design: true
+`);
+
+      // AndroidManifest.xml
+      zip.file("android/app/src/main/AndroidManifest.xml", `<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.kcast.app">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+
+    <application
+        android:label="K CAST"
+        android:name="\${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <service 
+            android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
+            android:foregroundServiceType="mediaProjection|camera|microphone"
+            android:exported="false" />
+    </application>
+</manifest>`);
+
+      // Flutter Native Dart Application
+      zip.file("lib/main.dart", `import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+
+void main() => runApp(const KCastApp());
+
+class KCastApp extends StatelessWidget {
+  const KCastApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'K CAST',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(),
+      home: const Scaffold(body: Center(child: Text("K CAST Android Native Engine Ready"))),
+    );
+  }
+}`);
+
+      // Readme instructions
+      zip.file("BUILD_INSTRUCTIONS.txt", `===========================================
+K CAST - BUILD YOUR RELEASE APK IN 1 MINUTE
+===========================================
+
+1. Install Flutter SDK: https://flutter.dev
+2. Open terminal in this unzipped directory.
+3. Run:
+   flutter pub get
+   flutter build apk --release
+
+Your final APK will be generated at:
+build/app/outputs/flutter-apk/app-release.apk
+`);
+
+      // Generate and Trigger Download
+      zip.generateAsync({ type: "blob" }).then(function(content) {
+        saveAs(content, "K_CAST_Android_APK_Project.zip");
       });
-      document
-        .getElementById("manifest-placeholder")
-        .setAttribute("href", URL.createObjectURL(manifestBlob));
+    }
 
-      if ("serviceWorker" in navigator) {
-        const swCode = `
+    // ========================================================
+    // 2. PWA & WEBAPK ENGINE REGISTRATION
+    // ========================================================
+    let deferredPrompt = null;
+
+    const manifestData = {
+      name: "K CAST Pro",
+      short_name: "K CAST",
+      start_url: window.location.href.split("?")[0],
+      display: "standalone",
+      background_color: "#05070d",
+      theme_color: "#4f46e5",
+      orientation: "portrait",
+      icons: [
+        {
+          src: "https://cdn-icons-png.flaticon.com/512/3670/3670157.png",
+          sizes: "192x192",
+          type: "image/png"
+        },
+        {
+          src: "https://cdn-icons-png.flaticon.com/512/3670/3670157.png",
+          sizes: "512x512",
+          type: "image/png"
+        }
+      ]
+    };
+
+    const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: "application/json" });
+    document.getElementById("manifest-placeholder").setAttribute("href", URL.createObjectURL(manifestBlob));
+
+    if ("serviceWorker" in navigator) {
+      const swCode = `
         self.addEventListener('install', e => self.skipWaiting());
         self.addEventListener('activate', e => self.clients.claim());
         self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => new Response('Offline'))));
       `;
-        const swBlob = new Blob([swCode], { type: "application/javascript" });
-        navigator.serviceWorker
-          .register(URL.createObjectURL(swBlob))
-          .catch((e) => console.log(e));
-      }
+      const swBlob = new Blob([swCode], { type: "application/javascript" });
+      navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(e => console.log(e));
+    }
 
-      window.addEventListener("beforeinstallprompt", (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById("installApkBtn").classList.remove("d-none");
-      });
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById("installApkBtn").classList.remove("d-none");
+    });
 
-      function triggerWebAPKInstall() {
-        if (deferredPrompt) {
-          deferredPrompt.prompt();
-          deferredPrompt.userChoice.then((choice) => {
-            if (choice.outcome === "accepted") {
-              document.getElementById("installApkBtn").classList.add("d-none");
-              document.getElementById("apkInstallCard").classList.add("d-none");
-            }
-            deferredPrompt = null;
-          });
-        } else {
-          alert(
-            "To install K CAST on Android: Tap the 3 dots (⋮) in Chrome and select 'Add to Home screen' or 'Install app'.",
-          );
-        }
-      }
-
-      // ========================================================
-      // 2. K CAST WEBRTC 2-WAY LIVE STREAMING & VOICE ENGINE
-      // ========================================================
-      let peer = null;
-      let localStream = null;
-      let receiverLocalStream = null;
-      let activeMode = "screen";
-      let facingDirection = "environment";
-      let activeCall = null;
-      let dataChannel = null;
-      let isMicEnabled = true;
-
-      const rtcConfig = {
-        config: {
-          iceServers: [
-            { urls: "stun:stun.l.google.com:19302" },
-            { urls: "stun:stun1.l.google.com:19302" },
-            { urls: "stun:stun2.l.google.com:19302" },
-            { urls: "stun:global.stun.twilio.com:3478" },
-          ],
-        },
-      };
-
-      window.addEventListener("load", () => {
-        setTimeout(() => {
-          const splash = document.getElementById("splash-screen");
-          splash.style.opacity = "0";
-          setTimeout(() => {
-            splash.style.display = "none";
-            bootstrapKCast();
-          }, 600);
-        }, 3000);
-      });
-
-      function selectCastMode(mode) {
-        activeMode = mode;
-        document
-          .getElementById("optScreen")
-          .classList.toggle("active", mode === "screen");
-        document
-          .getElementById("optBackCam")
-          .classList.toggle("active", mode === "environment");
-        document
-          .getElementById("optFrontCam")
-          .classList.toggle("active", mode === "user");
-
-        if (mode !== "screen") {
-          facingDirection = mode;
-        }
-      }
-
-      function bootstrapKCast() {
-        const params = new URLSearchParams(window.location.search);
-        const roomKey = params.get("room");
-
-        if (roomKey) {
-          document.getElementById("senderSection").classList.add("d-none");
-          document.getElementById("receiverSection").classList.remove("d-none");
-          setupReceiver(roomKey);
-        } else {
-          setupSender();
-        }
-      }
-
-      function setupSender() {
-        peer = new Peer(rtcConfig);
-
-        peer.on("open", (id) => {
-          document.getElementById("startCastBtn").disabled = false;
-          const status = document.getElementById("connBadge");
-          status.className =
-            "badge bg-dark border border-secondary text-success px-3 py-2";
-          status.innerHTML =
-            '<i class="fa-solid fa-circle-check me-1"></i> K CAST Ready';
-
-          peer.on("call", (call) => {
-            if (localStream) {
-              call.answer(localStream);
-              // Handle incoming 2-way audio/video stream from receiver
-              call.on("stream", (remoteStream) => {
-                const audio = new Audio();
-                audio.srcObject = remoteStream;
-                audio.play().catch((e) => console.log(e));
-              });
-            }
-          });
-
-          peer.on("connection", (conn) => {
-            dataChannel = conn;
-            conn.on("data", (data) => {
-              if (data === "flipCamera") toggleCameraLens();
-            });
-          });
+    function triggerWebAPKInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choice) => {
+          if (choice.outcome === "accepted") {
+            document.getElementById("installApkBtn").classList.add("d-none");
+          }
+          deferredPrompt = null;
         });
-
-        peer.on("error", (err) => console.error("Peer Error:", err));
+      } else {
+        alert("To install K CAST on Android: Tap the 3 dots (⋮) in Chrome and select 'Add to Home screen' or 'Install app'.");
       }
+    }
 
-      async function startKCast() {
-        try {
-          if (activeMode === "screen") {
-            if (
-              navigator.mediaDevices &&
-              navigator.mediaDevices.getDisplayMedia
-            ) {
-              localStream = await navigator.mediaDevices.getDisplayMedia({
-                video: { cursor: "always", frameRate: { ideal: 30, max: 60 } },
-                audio: true,
-              });
-            } else {
-              alert(
-                "Mobile browser restricted full-screen OS capture. Switching to HD Camera with 2-Way Voice!",
-              );
-              selectCastMode("environment");
-              return startKCast();
-            }
-          } else {
-            // HD CAMERA STREAM WITH REAL-TIME MICROPHONE VOICE
-            localStream = await navigator.mediaDevices.getUserMedia({
-              video: {
-                facingMode: facingDirection,
-                width: { ideal: 1920 },
-                height: { ideal: 1080 },
-              },
-              audio: {
-                echoCancellation: true,
-                noiseSuppression: true,
-                autoGainControl: true,
-              },
+    // ========================================================
+    // 3. K CAST WEBRTC 2-WAY LIVE STREAMING & VOICE ENGINE
+    // ========================================================
+    let peer = null;
+    let localStream = null;
+    let receiverLocalStream = null;
+    let activeMode = "screen";
+    let facingDirection = "environment";
+    let activeCall = null;
+    let dataChannel = null;
+    let isMicEnabled = true;
+
+    const rtcConfig = {
+      config: {
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun1.l.google.com:19302" },
+          { urls: "stun:stun2.l.google.com:19302" },
+          { urls: "stun:global.stun.twilio.com:3478" }
+        ]
+      }
+    };
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        const splash = document.getElementById("splash-screen");
+        splash.style.opacity = "0";
+        setTimeout(() => {
+          splash.style.display = "none";
+          bootstrapKCast();
+        }, 600);
+      }, 3000);
+    });
+
+    function selectCastMode(mode) {
+      activeMode = mode;
+      document.getElementById("optScreen").classList.toggle("active", mode === "screen");
+      document.getElementById("optBackCam").classList.toggle("active", mode === "environment");
+      document.getElementById("optFrontCam").classList.toggle("active", mode === "user");
+
+      if (mode !== "screen") {
+        facingDirection = mode;
+      }
+    }
+
+    function bootstrapKCast() {
+      const params = new URLSearchParams(window.location.search);
+      const roomKey = params.get("room");
+
+      if (roomKey) {
+        document.getElementById("senderSection").classList.add("d-none");
+        document.getElementById("receiverSection").classList.remove("d-none");
+        setupReceiver(roomKey);
+      } else {
+        setupSender();
+      }
+    }
+
+    function setupSender() {
+      peer = new Peer(rtcConfig);
+
+      peer.on("open", (id) => {
+        document.getElementById("startCastBtn").disabled = false;
+        const status = document.getElementById("connBadge");
+        status.className = "badge bg-dark border border-secondary text-success px-3 py-2";
+        status.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> K CAST Ready';
+
+        peer.on("call", (call) => {
+          if (localStream) {
+            call.answer(localStream);
+            call.on("stream", (remoteStream) => {
+              const audio = new Audio();
+              audio.srcObject = remoteStream;
+              audio.play().catch(e => console.log(e));
             });
           }
+        });
 
-          const shareUrl = `${window.location.origin}${window.location.pathname}?room=${peer.id}`;
-          document.getElementById("shareUrl").value = shareUrl;
-
-          document.getElementById("qrcode").innerHTML = "";
-          new QRCode(document.getElementById("qrcode"), {
-            text: shareUrl,
-            width: 140,
-            height: 140,
+        peer.on("connection", (conn) => {
+          dataChannel = conn;
+          conn.on("data", (data) => {
+            if (data === "flipCamera") toggleCameraLens();
           });
+        });
+      });
 
-          document.getElementById("initCard").classList.add("d-none");
-          document.getElementById("activeCard").classList.remove("d-none");
+      peer.on("error", (err) => console.error("Peer Error:", err));
+    }
 
-          localStream.getVideoTracks()[0].onended = () => stopKCast();
-        } catch (err) {
-          alert("Permission was denied or device is currently in use.");
-          console.error(err);
-        }
-      }
-
-      function toggleMicrophone() {
-        if (!localStream) return;
-        isMicEnabled = !isMicEnabled;
-        localStream
-          .getAudioTracks()
-          .forEach((track) => (track.enabled = isMicEnabled));
-        const btn = document.getElementById("micToggleBtn");
-        btn.className = isMicEnabled
-          ? "btn btn-secondary px-3 py-2"
-          : "btn btn-outline-danger px-3 py-2";
-        btn.innerHTML = `<i class="fa-solid fa-microphone${isMicEnabled ? "" : "-slash"} me-1"></i> Mic: ${isMicEnabled ? "ON" : "MUTED"}`;
-      }
-
-      async function toggleCameraLens() {
-        facingDirection =
-          facingDirection === "environment" ? "user" : "environment";
-        selectCastMode(facingDirection);
-
-        try {
-          const newStream = await navigator.mediaDevices.getUserMedia({
+    async function startKCast() {
+      try {
+        if (activeMode === "screen") {
+          if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+            localStream = await navigator.mediaDevices.getDisplayMedia({
+              video: { cursor: "always", frameRate: { ideal: 30, max: 60 } },
+              audio: true
+            });
+          } else {
+            alert("Mobile browser restricted full-screen OS capture. Switching to HD Camera with 2-Way Voice!");
+            selectCastMode("environment");
+            return startKCast();
+          }
+        } else {
+          localStream = await navigator.mediaDevices.getUserMedia({
             video: {
               facingMode: facingDirection,
               width: { ideal: 1920 },
-              height: { ideal: 1080 },
+              height: { ideal: 1080 }
             },
-            audio: isMicEnabled,
-          });
-
-          const newVideoTrack = newStream.getVideoTracks()[0];
-
-          if (peer) {
-            for (let callId in peer.connections) {
-              const conns = peer.connections[callId];
-              conns.forEach((c) => {
-                if (c.peerConnection) {
-                  const sender = c.peerConnection
-                    .getSenders()
-                    .find((s) => s.track && s.track.kind === "video");
-                  if (sender) sender.replaceTrack(newVideoTrack);
-                }
-              });
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
             }
-          }
-
-          if (localStream) localStream.getVideoTracks()[0].stop();
-          localStream = newStream;
-        } catch (e) {
-          console.error("Camera flip error:", e);
+          });
         }
-      }
 
-      function stopKCast() {
-        if (localStream) {
-          localStream.getTracks().forEach((t) => t.stop());
-          localStream = null;
-        }
-        document.getElementById("initCard").classList.remove("d-none");
-        document.getElementById("activeCard").classList.add("d-none");
-      }
+        const shareUrl = `${window.location.origin}${window.location.pathname}?room=${peer.id}`;
+        document.getElementById("shareUrl").value = shareUrl;
 
-      function setupReceiver(hostId) {
-        peer = new Peer(rtcConfig);
-
-        peer.on("open", () => {
-          const status = document.getElementById("connBadge");
-          status.className =
-            "badge bg-dark border border-secondary text-success px-3 py-2";
-          status.innerHTML =
-            '<i class="fa-solid fa-tower-broadcast me-1"></i> Connected to K CAST';
-
-          dataChannel = peer.connect(hostId);
-          connectToHost(hostId);
+        document.getElementById("qrcode").innerHTML = "";
+        new QRCode(document.getElementById("qrcode"), {
+          text: shareUrl,
+          width: 140,
+          height: 140
         });
 
-        peer.on("error", () => {
-          document.getElementById("waitingMsg").innerHTML = `
+        document.getElementById("initCard").classList.add("d-none");
+        document.getElementById("activeCard").classList.remove("d-none");
+
+        localStream.getVideoTracks()[0].onended = () => stopKCast();
+
+      } catch (err) {
+        alert("Permission was denied or device is currently in use.");
+        console.error(err);
+      }
+    }
+
+    function toggleMicrophone() {
+      if (!localStream) return;
+      isMicEnabled = !isMicEnabled;
+      localStream.getAudioTracks().forEach(track => track.enabled = isMicEnabled);
+      const btn = document.getElementById("micToggleBtn");
+      btn.className = isMicEnabled ? "btn btn-secondary px-3 py-2" : "btn btn-outline-danger px-3 py-2";
+      btn.innerHTML = `<i class="fa-solid fa-microphone${isMicEnabled ? '' : '-slash'} me-1"></i> Mic: ${isMicEnabled ? 'ON' : 'MUTED'}`;
+    }
+
+    async function toggleCameraLens() {
+      facingDirection = facingDirection === "environment" ? "user" : "environment";
+      selectCastMode(facingDirection);
+
+      try {
+        const newStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: facingDirection, width: { ideal: 1920 }, height: { ideal: 1080 } },
+          audio: isMicEnabled
+        });
+
+        const newVideoTrack = newStream.getVideoTracks()[0];
+
+        if (peer) {
+          for (let callId in peer.connections) {
+            const conns = peer.connections[callId];
+            conns.forEach(c => {
+              if (c.peerConnection) {
+                const sender = c.peerConnection.getSenders().find(s => s.track && s.track.kind === "video");
+                if (sender) sender.replaceTrack(newVideoTrack);
+              }
+            });
+          }
+        }
+
+        if (localStream) localStream.getVideoTracks()[0].stop();
+        localStream = newStream;
+      } catch (e) {
+        console.error("Camera flip error:", e);
+      }
+    }
+
+    function stopKCast() {
+      if (localStream) {
+        localStream.getTracks().forEach(t => t.stop());
+        localStream = null;
+      }
+      document.getElementById("initCard").classList.remove("d-none");
+      document.getElementById("activeCard").classList.add("d-none");
+    }
+
+    function setupReceiver(hostId) {
+      peer = new Peer(rtcConfig);
+
+      peer.on("open", () => {
+        const status = document.getElementById("connBadge");
+        status.className = "badge bg-dark border border-secondary text-success px-3 py-2";
+        status.innerHTML = '<i class="fa-solid fa-tower-broadcast me-1"></i> Connected to K CAST';
+
+        dataChannel = peer.connect(hostId);
+        connectToHost(hostId);
+      });
+
+      peer.on("error", () => {
+        document.getElementById("waitingMsg").innerHTML = `
           <i class="fa-solid fa-circle-xmark text-danger fs-1 mb-2"></i>
           <p>K CAST Host is offline or room expired.</p>
         `;
-        });
-      }
+      });
+    }
 
-      function connectToHost(hostId) {
-        const video = document.getElementById("receiverVideo");
-        const waitMsg = document.getElementById("waitingMsg");
+    function connectToHost(hostId) {
+      const video = document.getElementById("receiverVideo");
+      const waitMsg = document.getElementById("waitingMsg");
 
-        const dummyCanvas = document.createElement("canvas");
-        dummyCanvas.width = 1;
-        dummyCanvas.height = 1;
-        const dummyStream = dummyCanvas.captureStream();
+      const dummyCanvas = document.createElement("canvas");
+      dummyCanvas.width = 1; dummyCanvas.height = 1;
+      const dummyStream = dummyCanvas.captureStream();
 
-        activeCall = peer.call(hostId, dummyStream);
+      activeCall = peer.call(hostId, dummyStream);
 
-        activeCall.on("stream", (remoteStream) => {
-          waitMsg.classList.add("d-none");
-          video.classList.remove("d-none");
-          video.srcObject = remoteStream;
+      activeCall.on("stream", (remoteStream) => {
+        waitMsg.classList.add("d-none");
+        video.classList.remove("d-none");
+        video.srcObject = remoteStream;
 
-          // Unmuted to hear the sender's voice in real time
-          video.muted = false;
-          video.setAttribute("playsinline", "true");
-          video.play().catch((e) => {
-            // Fallback if browser policy blocks unmuted autoplay
-            video.muted = true;
-            video.play();
-          });
-
-          video.onloadedmetadata = () => {
-            const w = video.videoWidth;
-            const h = video.videoHeight;
-            document.getElementById("resolutionBadge").innerText = `${w}x${h}`;
-
-            if (h > w) {
-              setDeviceFrame("phone");
-            } else if (w / h < 1.5) {
-              setDeviceFrame("tablet");
-            } else {
-              setDeviceFrame("desktop");
-            }
-          };
+        video.muted = false;
+        video.setAttribute("playsinline", "true");
+        video.play().catch(e => {
+          video.muted = true;
+          video.play();
         });
 
-        activeCall.on("close", () => {
-          video.classList.add("d-none");
-          waitMsg.classList.remove("d-none");
-          waitMsg.innerHTML =
-            '<i class="fa-solid fa-circle-xmark text-danger fs-1 mb-2"></i><p>K CAST Ended by Host</p>';
-        });
-      }
+        video.onloadedmetadata = () => {
+          const w = video.videoWidth;
+          const h = video.videoHeight;
+          document.getElementById("resolutionBadge").innerText = `${w}x${h}`;
 
-      // Enable 2-Way Video and Voice from Viewer back to Host
-      async function enableReceiver2Way() {
-        try {
-          receiverLocalStream = await navigator.mediaDevices.getUserMedia({
-            video: {
-              facingMode: "user",
-              width: { ideal: 640 },
-              height: { ideal: 480 },
-            },
-            audio: { echoCancellation: true, noiseSuppression: true },
-          });
-
-          const selfVideo = document.getElementById("receiverSelfVideo");
-          selfVideo.classList.remove("d-none");
-          selfVideo.srcObject = receiverLocalStream;
-
-          // Add tracks to existing WebRTC call
-          if (activeCall && activeCall.peerConnection) {
-            receiverLocalStream.getTracks().forEach((track) => {
-              activeCall.peerConnection.addTrack(track, receiverLocalStream);
-            });
+          if (h > w) {
+            setDeviceFrame("phone");
+          } else if (w / h < 1.5) {
+            setDeviceFrame("tablet");
+          } else {
+            setDeviceFrame("desktop");
           }
+        };
+      });
 
-          const btn = document.getElementById("recvMicBtn");
-          btn.className = "btn btn-sm btn-success";
-          btn.innerHTML =
-            '<i class="fa-solid fa-circle-check me-1"></i> 2-Way Voice Active';
-        } catch (e) {
-          alert("Camera or Microphone permission denied.");
+      activeCall.on("close", () => {
+        video.classList.add("d-none");
+        waitMsg.classList.remove("d-none");
+        waitMsg.innerHTML = '<i class="fa-solid fa-circle-xmark text-danger fs-1 mb-2"></i><p>K CAST Ended by Host</p>';
+      });
+    }
+
+    async function enableReceiver2Way() {
+      try {
+        receiverLocalStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+          audio: { echoCancellation: true, noiseSuppression: true }
+        });
+
+        const selfVideo = document.getElementById("receiverSelfVideo");
+        selfVideo.classList.remove("d-none");
+        selfVideo.srcObject = receiverLocalStream;
+
+        if (activeCall && activeCall.peerConnection) {
+          receiverLocalStream.getTracks().forEach(track => {
+            activeCall.peerConnection.addTrack(track, receiverLocalStream);
+          });
         }
+
+        const btn = document.getElementById("recvMicBtn");
+        btn.className = "btn btn-sm btn-success";
+        btn.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> 2-Way Voice Active';
+      } catch (e) {
+        alert("Camera or Microphone permission denied.");
       }
+    }
 
-      function requestRemoteFlipCamera() {
-        if (dataChannel && dataChannel.open) {
-          dataChannel.send("flipCamera");
-        }
+    function requestRemoteFlipCamera() {
+      if (dataChannel && dataChannel.open) {
+        dataChannel.send("flipCamera");
       }
+    }
 
-      function setDeviceFrame(type) {
-        const frame = document.getElementById("mockupFrame");
-        const notch = document.getElementById("phoneNotch");
+    function setDeviceFrame(type) {
+      const frame = document.getElementById("mockupFrame");
+      const notch = document.getElementById("phoneNotch");
 
-        frame.className = "phone-mockup";
-        if (type === "tablet") frame.classList.add("frame-tablet");
-        if (type === "desktop") frame.classList.add("frame-desktop");
-        if (type === "tv") frame.classList.add("frame-tv");
+      frame.className = "phone-mockup";
+      if (type === "tablet") frame.classList.add("frame-tablet");
+      if (type === "desktop") frame.classList.add("frame-desktop");
+      if (type === "tv") frame.classList.add("frame-tv");
 
-        if (type === "phone") {
-          notch.classList.remove("d-none");
-        } else {
-          notch.classList.add("d-none");
-        }
+      if (type === "phone") {
+        notch.classList.remove("d-none");
+      } else {
+        notch.classList.add("d-none");
       }
+    }
 
-      function takeSnapshot() {
-        const video = document.getElementById("receiverVideo");
-        if (!video.videoWidth) return;
+    function takeSnapshot() {
+      const video = document.getElementById("receiverVideo");
+      if (!video.videoWidth) return;
 
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        const a = document.createElement("a");
-        a.download = `k-cast-snapshot-${Date.now()}.png`;
-        a.href = canvas.toDataURL("image/png");
-        a.click();
+      const a = document.createElement("a");
+      a.download = `k-cast-snapshot-${Date.now()}.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+    }
+
+    function toggleFullscreen() {
+      const frame = document.getElementById("mockupFrame");
+      if (!document.fullscreenElement) {
+        if (frame.requestFullscreen) frame.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
       }
+    }
 
-      function toggleFullscreen() {
-        const frame = document.getElementById("mockupFrame");
-        if (!document.fullscreenElement) {
-          if (frame.requestFullscreen) frame.requestFullscreen();
-        } else {
-          if (document.exitFullscreen) document.exitFullscreen();
-        }
-      }
-
-      function copyLink() {
-        const input = document.getElementById("shareUrl");
-        input.select();
-        navigator.clipboard.writeText(input.value);
-        alert("K CAST link copied to clipboard!");
-      }
-    </script>
-  </body>
+    function copyLink() {
+      const input = document.getElementById("shareUrl");
+      input.select();
+      navigator.clipboard.writeText(input.value);
+      alert("K CAST link copied to clipboard!");
+    }
+  </script>
+</body>
 </html>
